@@ -13,6 +13,7 @@ android {
     defaultConfig {
         applicationId = "com.example.ziblocks"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -41,4 +42,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
+
 }
