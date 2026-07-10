@@ -20,7 +20,20 @@ public class MainActivity extends AppCompatActivity {
         webView = findViewById(R.id.webview);
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onReceivedError(WebView view,
+                                        android.webkit.WebResourceRequest request,
+                                        android.webkit.WebResourceError error) {
+                super.onReceivedError(view, request, error);
+
+                android.util.Log.e(
+                        "WEBVIEW",
+                        request.getUrl().toString() + " -> " + error.getDescription()
+                );
+            }
+        });
         webView.loadUrl("file:///android_asset/blockly.html");
     }
 
