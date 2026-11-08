@@ -7,17 +7,28 @@
    <script src="blockly/blocks_compressed.js"></script>
    <script src="blockly/javascript_compressed.js"></script>
     <script src="blockly/msg/en.js"></script>
-   <style>
-       html, body {
-           height: 100%;
-           margin: 0;
-           overflow: hidden;
-       }
-       #blocklyDiv {
-           height: 100%;
-           width: 100%;
-       }
-   </style>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #blocklyDiv {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Toolbox deslizante */
+        .blocklyToolbox{
+            transition: transform .25s ease;
+        }
+
+        /* Escondida */
+        .toolboxHidden{
+            transform: translateX(-100%);
+        }
+    </style>
 </head>
 <body>
    <div id="blocklyDiv"></div>
@@ -229,8 +240,105 @@
        <category name="Functions" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
    </xml>
    <script>
-       var workspace = Blockly.inject('blocklyDiv',
-           {toolbox: document.getElementById('toolbox'),
-           media: 'blockly/media/'});
+
+       var workspace = Blockly.inject('blocklyDiv',{
+           toolbox: document.getElementById('toolbox'),
+           media:'blockly/media/'
+       });
+
+
+       // Espera o Blockly criar a toolbox
+       setTimeout(function(){
+
+           const toolbox = document.querySelector(".blocklyToolbox");
+
+           if(toolbox){
+               toolbox.classList.add("toolboxHidden");
+           }
+
+       },300);
+
+
+
+
+       function abrirToolbox(){
+
+           const toolbox = document.querySelector(".blocklyToolbox");
+
+           if(toolbox){
+               toolbox.classList.remove("toolboxHidden");
+           }
+
+       }
+
+       function fecharToolbox(){
+
+           const toolbox = document.querySelector(".blocklyToolbox");
+
+           if(toolbox){
+               toolbox.classList.add("toolboxHidden");
+           }
+
+       }
+
+
+
+       let inicioX = 0;
+
+       document.addEventListener("touchstart",function(e){
+
+           inicioX = e.touches[0].clientX;
+
+       });
+
+       workspace.addChangeListener(function(event){
+
+           if(event.type === Blockly.Events.BLOCK_DRAG){
+
+               fecharToolbox();
+
+           }
+
+       });
+
+
+       document.addEventListener("touchend",function(e){
+
+           let fimX = e.changedTouches[0].clientX;
+
+           // esquerda -> direita
+           if(fimX - inicioX > 80){
+
+               abrirToolbox();
+
+           }
+
+           // direita -> esquerda
+           if(inicioX - fimX > 80){
+
+               fecharToolbox();
+
+           }
+
+       });
+
+       function alternarToolbox(){
+
+    const toolbox = document.querySelector(".blocklyToolbox");
+
+    if(!toolbox) return;
+
+    if(toolbox.classList.contains("toolboxHidden")){
+
+        abrirToolbox();
+
+    }else{
+
+        fecharToolbox();
+
+    }
+
+}
+
    </script>
 </body>
