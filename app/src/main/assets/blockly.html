@@ -1,15 +1,22 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-   <meta charset="utf-8">
-   <title>Blockly Demo</title>
-   <script src="blockly/blockly_compressed.js"></script>
-   <script src="blockly/blocks_compressed.js"></script>
-   <script src="blockly/javascript_compressed.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ziblocks</title>
+
+    <!-- Bibliotecas Blockly -->
+    <script src="blockly/blockly_compressed.js"></script>
+    <script src="blockly/blocks_compressed.js"></script>
+    <script src="blockly/javascript_compressed.js"></script>
     <script src="blockly/msg/en.js"></script>
+
     <style>
         html, body {
             height: 100%;
+            width: 100%;
             margin: 0;
             overflow: hidden;
         }
@@ -19,326 +26,564 @@
             width: 100%;
         }
 
-        /* Toolbox deslizante */
-        .blocklyToolbox{
+        .blocklyToolbox {
             transition: transform .25s ease;
         }
 
-        /* Escondida */
-        .toolboxHidden{
+        .toolboxHidden {
             transform: translateX(-100%);
         }
     </style>
 </head>
+
 <body>
-   <div id="blocklyDiv"></div>
-   <xml id="toolbox" style="display: none">
-       <category name="Logic" colour="%{BKY_LOGIC_HUE}">
-           <block type="controls_if"></block>
-           <block type="logic_compare"></block>
-           <block type="logic_operation"></block>
-           <block type="logic_negate"></block>
-           <block type="logic_boolean"></block>
-           <block type="logic_null"></block>
-           <block type="logic_ternary"></block>
-       </category>
-       <category name="Loops" colour="%{BKY_LOOPS_HUE}">
-           <block type="controls_repeat_ext">
-               <value name="TIMES">
-                   <block type="math_number">
-                       <field name="NUM">10</field>
-                   </block>
-               </value>
-           </block>
-           <block type="controls_whileUntil"></block>
-           <block type="controls_for">
-               <value name="FROM">
-                   <block type="math_number">
-                       <field name="NUM">1</field>
-                   </block>
-               </value>
-               <value name="TO">
-                   <block type="math_number">
-                       <field name="NUM">10</field>
-                   </block>
-               </value>
-               <value name="BY">
-                   <block type="math_number">
-                       <field name="NUM">1</field>
-                   </block>
-               </value>
-           </block>
-           <block type="controls_forEach"></block>
-           <block type="controls_flow_statements"></block>
-       </category>
-       <category name="Math" colour="%{BKY_MATH_HUE}">
-           <block type="math_number"></block>
-           <block type="math_arithmetic"></block>
-           <block type="math_single"></block>
-           <block type="math_trig"></block>
-           <block type="math_constant"></block>
-           <block type="math_number_property"></block>
-           <block type="math_round"></block>
-           <block type="math_on_list"></block>
-           <block type="math_modulo"></block>
-           <block type="math_constrain">
-               <value name="LOW">
-                   <block type="math_number">
-                       <field name="NUM">1</field>
-                   </block>
-               </value>
-               <value name="HIGH">
-                   <block type="math_number">
-                       <field name="NUM">100</field>
-                   </block>
-               </value>
-           </block>
-           <block type="math_random_int">
-               <value name="FROM">
-                   <block type="math_number">
-                       <field name="NUM">1</field>
-                   </block>
-               </value>
-               <value name="TO">
-                   <block type="math_number">
-                       <field name="NUM">100</field>
-                   </block>
-               </value>
-           </block>
-           <block type="math_random_float"></block>
-       </category>
-       <category name="Text" colour="%{BKY_TEXTS_HUE}">
-           <block type="text"></block>
-           <block type="text_join"></block>
-           <block type="text_append">
-               <value name="TEXT">
-                   <block type="text"></block>
-               </value>
-           </block>
-           <block type="text_length"></block>
-           <block type="text_isEmpty"></block>
-           <block type="text_indexOf">
-               <value name="VALUE">
-                   <block type="variables_get">
-                       <field name="VAR">text</field>
-                   </block>
-               </value>
-           </block>
-           <block type="text_charAt">
-               <value name="VALUE">
-                   <block type="variables_get">
-                       <field name="VAR">text</field>
-                   </block>
-               </value>
-           </block>
-           <block type="text_getSubstring">
-               <value name="STRING">
-                   <block type="variables_get">
-                       <field name="VAR">text</field>
-                   </block>
-               </value>
-           </block>
-           <block type="text_changeCase"></block>
-           <block type="text_trim"></block>
-           <block type="text_print"></block>
-           <block type="text_prompt_ext">
-               <value name="TEXT">
-                   <block type="text"></block>
-               </value>
-           </block>
-       </category>
-       <category name="Lists" colour="%{BKY_LISTS_HUE}">
-           <block type="lists_create_with"></block>
-           <block type="lists_create_with">
-               <mutation items="0"></mutation>
-           </block>
-           <block type="lists_repeat">
-               <value name="NUM">
-                   <block type="math_number">
-                       <field name="NUM">5</field>
-                   </block>
-               </value>
-           </block>
-           <block type="lists_length"></block>
-           <block type="lists_isEmpty"></block>
-           <block type="lists_indexOf">
-               <value name="VALUE">
-                   <block type="variables_get">
-                       <field name="VAR">list</field>
-                   </block>
-               </value>
-           </block>
-           <block type="lists_getIndex">
-               <value name="VALUE">
-                   <block type="variables_get">
-                       <field name="VAR">list</field>
-                   </block>
-               </value>
-           </block>
-           <block type="lists_setIndex">
-               <value name="LIST">
-                   <block type="variables_get">
-                       <field name="VAR">list</field>
-                   </block>
-               </value>
-           </block>
-           <block type="lists_getSublist">
-               <value name="LIST">
-                   <block type="variables_get">
-                       <field name="VAR">list</field>
-                   </block>
-               </value>
-           </block>
-           <block type="lists_split">
-               <value name="DELIM">
-                   <block type="text">
-                       <field name="TEXT">,</field>
-                   </block>
-               </value>
-           </block>
-           <block type="lists_sort"></block>
-       </category>
-       <category name="Colour" colour="%{BKY_COLOUR_HUE}">
-           <block type="colour_picker"></block>
-           <block type="colour_random"></block>
-           <block type="colour_rgb">
-               <value name="RED">
-                   <block type="math_number">
-                       <field name="NUM">100</field>
-                   </block>
-               </value>
-               <value name="GREEN">
-                   <block type="math_number">
-                       <field name="NUM">50</field>
-                   </block>
-               </value>
-               <value name="BLUE">
-                   <block type="math_number">
-                       <field name="NUM">0</field>
-                   </block>
-               </value>
-           </block>
-           <block type="colour_blend">
-               <value name="COLOUR1">
-                   <block type="colour_picker">
-                       <field name="COLOUR">#ff0000</field>
-                   </block>
-               </value>
-               <value name="COLOUR2">
-                   <block type="colour_picker">
-                       <field name="COLOUR">#3333ff</field>
-                   </block>
-               </value>
-               <value name="RATIO">
-                   <block type="math_number">
-                       <field name="NUM">0.5</field>
-                   </block>
-               </value>
-           </block>
-       </category>
-       <category name="Variables" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
-       <category name="Functions" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
-   </xml>
-   <script>
 
-       var workspace = Blockly.inject('blocklyDiv',{
-           toolbox: document.getElementById('toolbox'),
-           media:'blockly/media/'
-       });
+<div id="blocklyDiv"></div>
+
+<!-- TOOLBOX -->
+<xml id="toolbox" style="display: none">
+
+    <category name="Pinos" colour="210">
+        <block type="ziblocks_pino_digital"></block>
+    </category>
+
+    <category name="Tempo" colour="270">
+        <block type="ziblocks_aguardar"></block>
+    </category>
+
+    <category name="Condições" colour="120">
+        <block type="ziblocks_se"></block>
+    </category>
+
+</xml>
+
+<script>
+
+    // =====================================================
+    // MUTATOR: OPÇÃO SENÃO
+    // =====================================================
+
+    Blockly.Blocks['ziblocks_se_mutator_container'] = {
+
+        init: function() {
+
+            this.appendDummyInput()
+                .appendField("Configurar SE");
+
+            this.appendStatementInput("STACK");
+
+            this.setColour(120);
+            this.contextMenu = false;
+
+        }
+
+    };
 
 
-       // Espera o Blockly criar a toolbox
-       setTimeout(function(){
+    Blockly.Blocks['ziblocks_se_mutator_senao'] = {
 
-           const toolbox = document.querySelector(".blocklyToolbox");
+        init: function() {
 
-           if(toolbox){
-               toolbox.classList.add("toolboxHidden");
-           }
+            this.appendDummyInput()
+                .appendField("Adicionar SENÃO");
 
-       },300);
+            this.setPreviousStatement(true);
+            this.setNextStatement(false);
 
+            this.setColour(120);
+            this.contextMenu = false;
 
+        }
 
-
-       function abrirToolbox(){
-
-           const toolbox = document.querySelector(".blocklyToolbox");
-
-           if(toolbox){
-               toolbox.classList.remove("toolboxHidden");
-           }
-
-       }
-
-       function fecharToolbox(){
-
-           const toolbox = document.querySelector(".blocklyToolbox");
-
-           if(toolbox){
-               toolbox.classList.add("toolboxHidden");
-           }
-
-       }
+    };
 
 
+    // =====================================================
+    // BLOCO PRINCIPAL: SEMPRE / FAÇA
+    // =====================================================
 
-       let inicioX = 0;
+    Blockly.Blocks['ziblocks_sempre'] = {
 
-       document.addEventListener("touchstart",function(e){
+        init: function() {
 
-           inicioX = e.touches[0].clientX;
+            this.appendDummyInput()
+                .appendField("Sempre")
+                .appendField("Faça");
 
-       });
+            this.appendStatementInput("DO");
 
-       workspace.addChangeListener(function(event){
+            this.setColour(30);
 
-           if(event.type === Blockly.Events.BLOCK_DRAG){
+            this.setTooltip(
+                "Executa continuamente as instruções colocadas dentro deste bloco."
+            );
 
-               fecharToolbox();
+            this.setDeletable(false);
+            this.setMovable(true);
 
-           }
+        }
 
-       });
+    };
 
 
-       document.addEventListener("touchend",function(e){
+    // =====================================================
+    // BLOCO: DEFINIR PINO DIGITAL
+    // =====================================================
 
-           let fimX = e.changedTouches[0].clientX;
+    Blockly.Blocks['ziblocks_pino_digital'] = {
 
-           // esquerda -> direita
-           if(fimX - inicioX > 80){
+        init: function() {
 
-               abrirToolbox();
+            this.appendDummyInput()
+                .appendField("Definir pino")
+                .appendField(
+                    new Blockly.FieldDropdown([
+                        ["D3", "3"],
+                        ["D4", "4"],
+                        ["D5", "5"],
+                        ["D6", "6"],
+                        ["D7", "7"],
+                        ["D8", "8"],
+                        ["D9", "9"],
+                        ["D10", "10"],
+                        ["D11", "11"],
+                        ["D12", "12"],
+                        ["D13", "13"]
+                    ]),
+                    "PINO"
+                )
+                .appendField("como")
+                .appendField(
+                    new Blockly.FieldDropdown([
+                        ["LIGADO", "1"],
+                        ["DESLIGADO", "0"]
+                    ]),
+                    "ESTADO"
+                );
 
-           }
+            this.setPreviousStatement(true);
+            this.setNextStatement(true);
 
-           // direita -> esquerda
-           if(inicioX - fimX > 80){
+            this.setColour(210);
 
-               fecharToolbox();
+            this.setTooltip(
+                "Define o estado de uma saída digital."
+            );
 
-           }
+        }
 
-       });
+    };
 
-       function alternarToolbox(){
 
-    const toolbox = document.querySelector(".blocklyToolbox");
+    // =====================================================
+    // BLOCO: AGUARDAR
+    // =====================================================
 
-    if(!toolbox) return;
+    Blockly.Blocks['ziblocks_aguardar'] = {
 
-    if(toolbox.classList.contains("toolboxHidden")){
+        init: function() {
 
-        abrirToolbox();
+            this.appendDummyInput()
+                .appendField("Aguardar")
+                .appendField(
+                    new Blockly.FieldDropdown([
+                        ["10 ms", "10"],
+                        ["50 ms", "50"],
+                        ["100 ms", "100"],
+                        ["300 ms", "300"],
+                        ["500 ms", "500"],
+                        ["1 segundo", "1000"],
+                        ["2 segundos", "2000"],
+                        ["5 segundos", "5000"],
+                        ["10 segundos", "10000"]
+                    ]),
+                    "TEMPO"
+                );
 
-    }else{
+            this.setPreviousStatement(true);
+            this.setNextStatement(true);
 
-        fecharToolbox();
+            this.setColour(270);
+
+            this.setTooltip(
+                "Aguarda o tempo selecionado antes de executar a próxima instrução."
+            );
+
+        }
+
+    };
+
+
+    // =====================================================
+    // BLOCO: SE
+    // =====================================================
+
+    Blockly.Blocks['ziblocks_se'] = {
+
+        init: function() {
+
+            this.hasElse_ = false;
+
+            this.appendDummyInput()
+                .appendField("Se o pino")
+                .appendField(
+                    new Blockly.FieldDropdown([
+                        ["D3", "3"],
+                        ["D4", "4"],
+                        ["D5", "5"],
+                        ["D6", "6"]
+                    ]),
+                    "PINO"
+                )
+                .appendField("estiver")
+                .appendField(
+                    new Blockly.FieldDropdown([
+                        ["LIGADO", "1"],
+                        ["DESLIGADO", "0"]
+                    ]),
+                    "ESTADO"
+                );
+
+            this.appendStatementInput("DO")
+                .appendField("faça");
+
+            this.setPreviousStatement(true);
+            this.setNextStatement(true);
+
+            this.setColour(120);
+
+            this.setTooltip(
+                "Executa as instruções se a condição for verdadeira."
+            );
+
+            // Engrenagem do Blockly.
+            this.setMutator(
+                new Blockly.icons.MutatorIcon(
+                    ['ziblocks_se_mutator_senao'],
+                    this
+                )
+            );
+
+        },
+
+
+        // Salva a configuração do bloco.
+        mutationToDom: function() {
+
+            var container = document.createElement('mutation');
+
+            if (this.hasElse_) {
+                container.setAttribute('else', '1');
+            }
+
+            return container;
+
+        },
+
+
+        // Restaura a configuração.
+        domToMutation: function(xmlElement) {
+
+            this.hasElse_ =
+                xmlElement.getAttribute('else') === '1';
+
+            this.updateShape_();
+
+        },
+
+
+        // Monta o editor da engrenagem.
+        decompose: function(workspace) {
+
+            var containerBlock =
+                workspace.newBlock('ziblocks_se_mutator_container');
+
+            containerBlock.initSvg();
+
+            var connection =
+                containerBlock.getInput('STACK').connection;
+
+            if (this.hasElse_) {
+
+                var elseBlock =
+                    workspace.newBlock('ziblocks_se_mutator_senao');
+
+                elseBlock.initSvg();
+
+                connection.connect(elseBlock.previousConnection);
+
+            }
+
+            return containerBlock;
+
+        },
+
+
+        // Aplica a escolha feita na engrenagem.
+        compose: function(containerBlock) {
+
+            var itemBlock =
+                containerBlock.getInputTargetBlock('STACK');
+
+            this.hasElse_ = false;
+
+            while (itemBlock) {
+
+                if (itemBlock.type === 'ziblocks_se_mutator_senao') {
+                    this.hasElse_ = true;
+                }
+
+                itemBlock = itemBlock.nextConnection &&
+                    itemBlock.nextConnection.targetBlock();
+
+            }
+
+            this.updateShape_();
+
+        },
+
+
+        // Atualiza o formato do bloco.
+        updateShape_: function() {
+
+            if (this.hasElse_) {
+
+                if (!this.getInput('ELSE')) {
+
+                    this.appendStatementInput('ELSE')
+                        .appendField('senão');
+
+                }
+
+            } else {
+
+                if (this.getInput('ELSE')) {
+
+                    this.removeInput('ELSE');
+
+                }
+
+            }
+
+        }
+
+    };
+
+
+    // =====================================================
+    // INICIALIZAÇÃO DO BLOCKLY
+    // =====================================================
+
+    var workspace = Blockly.inject('blocklyDiv', {
+
+        toolbox: document.getElementById('toolbox'),
+
+        media: 'blockly/media/'
+
+    });
+
+
+    // =====================================================
+    // CRIAÇÃO AUTOMÁTICA DO SEMPRE / FAÇA
+    // =====================================================
+
+    var blocoSempre = workspace.newBlock('ziblocks_sempre');
+
+    blocoSempre.initSvg();
+    blocoSempre.render();
+
+    blocoSempre.setDeletable(false);
+    blocoSempre.setMovable(true);
+
+    blocoSempre.moveBy(40, 40);
+
+
+    // =====================================================
+    // CONTROLE DA TOOLBOX
+    // =====================================================
+
+    function abrirToolbox() {
+
+        const toolbox = document.querySelector(".blocklyToolbox");
+
+        if (toolbox) {
+            toolbox.classList.remove("toolboxHidden");
+        }
 
     }
 
-}
 
-   </script>
+    function fecharToolbox() {
+
+        const toolbox = document.querySelector(".blocklyToolbox");
+
+        if (toolbox) {
+            toolbox.classList.add("toolboxHidden");
+        }
+
+    }
+
+
+    // Fecha a toolbox ao iniciar.
+    setTimeout(function() {
+        fecharToolbox();
+    }, 300);
+
+
+    // Fecha a toolbox ao arrastar um bloco no workspace principal.
+    workspace.addChangeListener(function(event) {
+
+        if (event.type === Blockly.Events.BLOCK_DRAG) {
+            fecharToolbox();
+        }
+
+    });
+
+
+    // =====================================================
+    // FECHAR TOOLBOX AO TOCAR FORA DELA
+    // =====================================================
+
+    document.addEventListener("pointerdown", function(event) {
+
+        const toolbox = document.querySelector(".blocklyToolbox");
+        const flyout = document.querySelector(".blocklyFlyout");
+
+        if (!toolbox) return;
+
+        const tocouNaToolbox =
+            toolbox.contains(event.target);
+
+        const tocouNoFlyout =
+            flyout && flyout.contains(event.target);
+
+        if (!tocouNaToolbox && !tocouNoFlyout) {
+            fecharToolbox();
+        }
+
+    });
+
+
+    // =====================================================
+    // FECHAR TOOLBOX DEPOIS DE ARRASTAR UM BLOCO DO FLYOUT
+    // =====================================================
+
+    let arrasteComecouNoFlyout = false;
+    let arrasteInicioX = 0;
+    let arrasteInicioY = 0;
+
+    document.addEventListener("pointerdown", function(event) {
+
+        const alvo = event.target;
+
+        arrasteComecouNoFlyout =
+            alvo instanceof Element &&
+            !!alvo.closest(".blocklyFlyout");
+
+        arrasteInicioX = event.clientX;
+        arrasteInicioY = event.clientY;
+
+    }, true);
+
+
+    document.addEventListener("pointerup", function(event) {
+
+        if (!arrasteComecouNoFlyout) return;
+
+        arrasteComecouNoFlyout = false;
+
+        const distanciaX =
+            Math.abs(event.clientX - arrasteInicioX);
+
+        const distanciaY =
+            Math.abs(event.clientY - arrasteInicioY);
+
+        // Ignora cliques simples; considera apenas arrastes.
+        if (distanciaX < 8 && distanciaY < 8) return;
+
+        const destino = document.elementFromPoint(
+            event.clientX,
+            event.clientY
+        );
+
+        const terminouNoFlyout =
+            destino instanceof Element &&
+            !!destino.closest(".blocklyFlyout");
+
+        if (!terminouNoFlyout) {
+            fecharToolbox();
+        }
+
+    }, true);
+
+
+    // =====================================================
+    // CONTROLE DOS GESTOS NA TELA
+    // =====================================================
+
+    let inicioX = 0;
+    let gestoPermitido = false;
+
+    document.addEventListener("touchstart", function(e) {
+
+        if (e.touches.length === 0) return;
+
+        const alvo = e.target;
+
+        // Não interpreta arrastes de blocos como gestos.
+        const iniciouEmBloco =
+            alvo instanceof Element &&
+            !!alvo.closest(
+                ".blocklyDraggable, .blocklyFlyout, .blocklyToolbox"
+            );
+
+        gestoPermitido = !iniciouEmBloco;
+
+        inicioX = e.touches[0].clientX;
+
+    }, { passive: true });
+
+
+    document.addEventListener("touchend", function(e) {
+
+        if (!gestoPermitido) return;
+
+        gestoPermitido = false;
+
+        if (e.changedTouches.length === 0) return;
+
+        let fimX = e.changedTouches[0].clientX;
+
+        if (fimX - inicioX > 80) {
+            abrirToolbox();
+        }
+
+        if (inicioX - fimX > 80) {
+            fecharToolbox();
+        }
+
+    }, { passive: true });
+
+
+    // =====================================================
+    // BOTÃO ANDROID
+    // =====================================================
+
+    function alternarToolbox() {
+
+        const toolbox = document.querySelector(".blocklyToolbox");
+
+        if (!toolbox) return;
+
+        if (toolbox.classList.contains("toolboxHidden")) {
+            abrirToolbox();
+        } else {
+            fecharToolbox();
+        }
+
+    }
+
+</script>
+
 </body>
+</html>
