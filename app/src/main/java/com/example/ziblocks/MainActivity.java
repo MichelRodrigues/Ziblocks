@@ -1,3 +1,4 @@
+
 package com.example.ziblocks;
 
 import android.annotation.SuppressLint;
@@ -7,7 +8,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceError;
+import android.webkit.JavascriptInterface;
 import android.widget.ImageButton;
+import android.widget.Toast;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +21,26 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
     private ImageButton btnToolbox;
+
+    // Interface para comunicação entre JavaScript e Android.
+    private class AndroidBridge {
+
+        @JavascriptInterface
+        public void showToast(String mensagem) {
+
+            runOnUiThread(() -> {
+
+                Toast.makeText(
+                        MainActivity.this,
+                        mensagem,
+                        Toast.LENGTH_SHORT
+                ).show();
+
+            });
+
+        }
+
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -47,6 +70,12 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
 
         webSettings.setMediaPlaybackRequiresUserGesture(false);
+
+        // Disponibiliza a interface Android para o JavaScript.
+        webView.addJavascriptInterface(
+                new AndroidBridge(),
+                "AndroidBridge"
+        );
 
         // Cliente do WebView.
         webView.setWebViewClient(new WebViewClient() {

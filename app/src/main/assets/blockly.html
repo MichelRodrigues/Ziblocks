@@ -264,6 +264,96 @@
                 )
             );
 
+
+            // =====================================================
+            // REGRAS DOS BLOCOS SE
+            //
+            // 1. Não permitir SE dentro do FAÇA ou SENÃO
+            //    de outro SE.
+            //
+            // 2. Permitir até 4 SE independentes dentro
+            //    do SEMPRE / FAÇA.
+            //
+            // 3. Avisar quando tentar adicionar o quinto SE.
+            // =====================================================
+
+            this.setOnChange(function(event) {
+
+                if (!this.workspace) return;
+
+                // Processa somente movimentos deste bloco.
+                if (!event ||
+                    event.type !== Blockly.Events.BLOCK_MOVE ||
+                    event.blockId !== this.id) {
+                    return;
+                }
+
+                const bloco = this;
+
+                // -------------------------------------------------
+                // REGRA 1:
+                // Impedir SE dentro do FAÇA ou SENÃO de outro SE.
+                // -------------------------------------------------
+
+                const paiEstrutural = bloco.getSurroundParent();
+
+                if (paiEstrutural &&
+                    paiEstrutural.type === 'ziblocks_se') {
+
+                    bloco.unplug(true);
+                    return;
+
+                }
+
+
+                // -------------------------------------------------
+                // REGRA 2:
+                // Máximo de 4 blocos SE dentro do SEMPRE.
+                // -------------------------------------------------
+
+                const raiz = bloco.getRootBlock();
+
+                // Só aplica o limite aos blocos ligados ao SEMPRE.
+                if (raiz.type !== 'ziblocks_sempre') return;
+
+                const todosBlocos = bloco.workspace.getAllBlocks(false);
+
+                let quantidadeSE = 0;
+
+                for (const b of todosBlocos) {
+
+                    if (b.type !== 'ziblocks_se') continue;
+
+                    // Conta os SE que pertencem à mesma estrutura
+                    // do SEMPRE, incluindo os conectados em sequência.
+                    if (b.getRootBlock() === raiz) {
+                        quantidadeSE++;
+                    }
+
+                }
+
+                // -------------------------------------------------
+                // REGRA 3:
+                // Se ultrapassar quatro, desconecta o bloco
+                // e mostra um Toast no Android.
+                // -------------------------------------------------
+
+                if (quantidadeSE > 4) {
+
+                    bloco.unplug(true);
+
+                    if (window.AndroidBridge) {
+
+                        AndroidBridge.showToast(
+                            "Limite de condicionais atingido"
+                        );
+
+                    }
+
+                }
+
+            });
+
         },
 
 
