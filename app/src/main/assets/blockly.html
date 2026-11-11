@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -442,6 +443,37 @@
 
 
     // =====================================================
+    // FECHAR JANELA DA ENGRENAGEM
+    // =====================================================
+
+    function fecharMutatorAberto() {
+
+        const blocos = workspace.getAllBlocks(false);
+
+        blocos.forEach(function(bloco) {
+
+            if (!bloco.getIcons) return;
+
+            const icones = bloco.getIcons();
+
+            icones.forEach(function(icone) {
+
+                if (icone instanceof Blockly.icons.MutatorIcon) {
+
+                    if (typeof icone.setBubbleVisible === "function") {
+                        icone.setBubbleVisible(false);
+                    }
+
+                }
+
+            });
+
+        });
+
+    }
+
+
+    // =====================================================
     // CONTROLE DA TOOLBOX
     // =====================================================
 
@@ -489,7 +521,7 @@
 
 
     // =====================================================
-    // FECHAR TOOLBOX AO TOCAR NA ÁREA LIVRE
+    // FECHAR MUTATOR AO TOCAR NA ÁREA BRANCA
     // =====================================================
 
     document.addEventListener("pointerdown", function(event) {
@@ -499,27 +531,31 @@
         if (!(alvo instanceof Element)) return;
 
         // O toque precisa acontecer dentro do workspace.
-        const dentroWorkspace = alvo.closest("#blocklyDiv");
+        if (!alvo.closest("#blocklyDiv")) return;
 
-        if (!dentroWorkspace) return;
+        // Não fecha ao tocar dentro da janela da engrenagem.
+        const tocouNoMutator = alvo.closest(
+            ".blocklyMutatorBubble, .blocklyBubbleCanvas"
+        );
+
+        if (tocouNoMutator) return;
 
         // Não fecha ao tocar na toolbox ou no flyout.
-        const tocouNaToolbox =
-            alvo.closest(".blocklyToolbox, .blocklyToolboxDiv");
+        const tocouNaToolbox = alvo.closest(
+            ".blocklyToolbox, .blocklyToolboxDiv"
+        );
 
-        const tocouNoFlyout =
-            alvo.closest(".blocklyFlyout");
+        const tocouNoFlyout = alvo.closest(".blocklyFlyout");
 
         if (tocouNaToolbox || tocouNoFlyout) return;
 
-        // Não fecha ao tocar em um bloco.
-        const tocouEmBloco =
-            alvo.closest(".blocklyDraggable");
+        // Não fecha ao tocar em qualquer bloco.
+        const tocouEmBloco = alvo.closest(".blocklyDraggable");
 
         if (tocouEmBloco) return;
 
-        // Qualquer toque em área livre do workspace fecha.
-        fecharToolbox();
+        // Se chegou aqui, o toque foi na área vazia.
+        fecharMutatorAberto();
 
     }, true);
 
