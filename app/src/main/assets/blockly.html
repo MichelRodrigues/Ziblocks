@@ -33,6 +33,105 @@
         .toolboxHidden {
             transform: translateX(-100%);
         }
+        /* =====================================================
+   ESTILO DAS CATEGORIAS DA TOOLBOX
+   ===================================================== */
+
+.blocklyTreeRoot {
+    padding: 8px 5px !important;
+}
+
+.blocklyTreeRow {
+    height: 52px !important;
+    line-height: 52px !important;
+
+    margin: 8px 6px !important;
+    padding: 0 12px !important;
+
+    border-radius: 12px !important;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        inset 0 2px 2px rgba(255,255,255,0.25),
+        0 5px 0 rgba(0,0,0,0.25);
+
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        filter 0.12s ease;
+}
+
+/* SAÍDAS - AZUL */
+
+.blocklyTreeRoot > .blocklyTreeRow:nth-of-type(1) {
+    background: linear-gradient(
+        180deg,
+        #4D9AE8,
+        #2164A8
+    ) !important;
+}
+
+/* TEMPO - ROXO */
+
+.blocklyTreeRoot > .blocklyTreeRow:nth-of-type(2) {
+    background: linear-gradient(
+        180deg,
+        #AC75E8,
+        #7540B5
+    ) !important;
+}
+
+/* CONDIÇÕES - VERDE */
+
+.blocklyTreeRoot > .blocklyTreeRow:nth-of-type(3) {
+    background: linear-gradient(
+        180deg,
+        #65C77D,
+        #298449
+    ) !important;
+}
+
+/* TEXTO DAS CATEGORIAS */
+
+.blocklyTreeLabel {
+    color: #FFFFFF !important;
+    font-size: 28px !important;
+    font-weight: bold !important;
+}
+
+/* EFEITO AO PASSAR O MOUSE */
+
+.blocklyTreeRow:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+
+    box-shadow:
+        inset 0 2px 2px rgba(255,255,255,0.3),
+        0 6px 0 rgba(0,0,0,0.25);
+}
+
+/* CATEGORIA SELECIONADA */
+
+.blocklyTreeRow.blocklyTreeSelected {
+    filter: brightness(1.15);
+
+    box-shadow:
+        inset 0 2px 3px rgba(0,0,0,0.15),
+        0 2px 0 rgba(0,0,0,0.3);
+
+    transform: translateY(3px);
+}
+
+/* EFEITO DE CLIQUE */
+
+.blocklyTreeRow:active {
+    transform: translateY(4px);
+
+    box-shadow:
+        inset 0 3px 5px rgba(0,0,0,0.2),
+        0 1px 0 rgba(0,0,0,0.2);
+}
     </style>
 </head>
 
@@ -43,15 +142,15 @@
 <!-- TOOLBOX -->
 <xml id="toolbox" style="display: none">
 
-    <category name="Saídas" colour="210">
+    <category name="💡Saídas" colour="210">
         <block type="ziblocks_pino_digital"></block>
     </category>
 
-    <category name="Tempo" colour="270">
+    <category name=" ⏱ Tempo" colour="270">
         <block type="ziblocks_aguardar"></block>
     </category>
 
-    <category name="Condições" colour="120">
+    <category name="⇄ Condições" colour="120">
         <block type="ziblocks_se"></block>
     </category>
 
