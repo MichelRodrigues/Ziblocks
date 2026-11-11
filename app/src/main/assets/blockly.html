@@ -60,6 +60,208 @@
 <script>
 
     // =====================================================
+    // CONTROLE DOS PINOS DIGITAIS
+    //
+    // D3 a D6: entradas dos blocos SE.
+    // D7 a D13: saídas quando existir pelo menos um SE.
+    //
+    // Sem nenhum SE, todos os pinos ficam disponíveis
+    // para saídas.
+    // =====================================================
+
+    const PINOS_DIGITAIS = [
+        ["D3", "3"],
+        ["D4", "4"],
+        ["D5", "5"],
+        ["D6", "6"],
+        ["D7", "7"],
+        ["D8", "8"],
+        ["D9", "9"],
+        ["D10", "10"],
+        ["D11", "11"],
+        ["D12", "12"],
+        ["D13", "13"]
+    ];
+
+    const PINOS_ENTRADA = [
+        ["D3", "3"],
+        ["D4", "4"],
+        ["D5", "5"],
+        ["D6", "6"]
+    ];
+
+    const PINOS_SAIDA_COM_IF = [
+        ["D7", "7"],
+        ["D8", "8"],
+        ["D9", "9"],
+        ["D10", "10"],
+        ["D11", "11"],
+        ["D12", "12"],
+        ["D13", "13"]
+    ];
+
+
+    // =====================================================
+    // VERIFICA SE EXISTE ALGUM BLOCO SE
+    // =====================================================
+
+    function existeBlocoSE() {
+
+        if (typeof workspace === "undefined" || !workspace) {
+            return false;
+        }
+
+        const blocos = workspace.getAllBlocks(false);
+
+        return blocos.some(function(bloco) {
+            return bloco.type === "ziblocks_se";
+        });
+
+    }
+
+
+    // =====================================================
+    // OBTÉM OS PINOS JÁ UTILIZADOS PELOS OUTROS IFs
+    // =====================================================
+
+    function obterPinosReservados(blocoIgnorado) {
+
+        const reservados = new Set();
+
+        if (typeof workspace === "undefined" || !workspace) {
+            return reservados;
+        }
+
+        const blocos = workspace.getAllBlocks(false);
+
+        blocos.forEach(function(bloco) {
+
+            if (bloco.type !== "ziblocks_se") return;
+
+            // Ignora o próprio IF.
+            if (bloco === blocoIgnorado) return;
+
+            const pino = bloco.getFieldValue("PINO");
+
+            if (pino) {
+                reservados.add(String(pino));
+            }
+
+        });
+
+        return reservados;
+
+    }
+
+
+    // =====================================================
+    // OPÇÕES DOS PINOS DE SAÍDA
+    //
+    // Sem IF: D3 até D13.
+    // Com IF: D7 até D13.
+    // =====================================================
+
+    function obterOpcoesPinosSaida() {
+
+        if (existeBlocoSE()) {
+            return PINOS_SAIDA_COM_IF;
+        }
+
+        return PINOS_DIGITAIS;
+
+    }
+
+
+    // =====================================================
+    // OPÇÕES DOS PINOS DOS IFs
+    //
+    // Cada IF pode utilizar D3, D4, D5 ou D6.
+    // Um pino já utilizado por outro IF não aparece.
+    // =====================================================
+
+    function obterOpcoesPinosSE(blocoAtual) {
+
+        const reservados = obterPinosReservados(blocoAtual);
+
+        const pinoAtual = String(
+            blocoAtual.getFieldValue("PINO") || ""
+        );
+
+        const opcoes = PINOS_ENTRADA.filter(function(opcao) {
+
+            return !reservados.has(opcao[1]) ||
+                opcao[1] === pinoAtual;
+
+        });
+
+        // O Blockly exige pelo menos uma opção no dropdown.
+        // Isso pode acontecer ao tentar adicionar um quinto IF.
+
+        if (opcoes.length === 0) {
+
+            return [
+                ["Sem pinos disponíveis", "0"]
+            ];
+
+        }
+
+        return opcoes;
+
+    }
+
+
+    // =====================================================
+    // VERIFICA CONFLITOS ENTRE ENTRADAS E SAÍDAS
+    //
+    // Se já existir uma saída usando D3, D4, D5 ou D6,
+    // não permite adicionar um IF ao programa.
+    // =====================================================
+
+    function existeConflitoComSaida() {
+
+        if (typeof workspace === "undefined" || !workspace) {
+            return false;
+        }
+
+        const blocos = workspace.getAllBlocks(false);
+
+        return blocos.some(function(bloco) {
+
+            if (bloco.type !== "ziblocks_pino_digital") {
+                return false;
+            }
+
+            const pino = String(
+                bloco.getFieldValue("PINO")
+            );
+
+            return ["3", "4", "5", "6"].includes(pino);
+
+        });
+
+    }
+
+
+    // =====================================================
+    // AVISOS ANDROID
+    // =====================================================
+
+    function mostrarAviso(mensagem) {
+
+        if (window.AndroidBridge) {
+
+            AndroidBridge.showToast(mensagem);
+
+        } else {
+
+            console.log(mensagem);
+
+        }
+
+    }
+
+
+    // =====================================================
     // MUTATOR: OPÇÃO SENÃO
     // =====================================================
 
@@ -137,19 +339,11 @@
             this.appendDummyInput()
                 .appendField("Definir pino")
                 .appendField(
-                    new Blockly.FieldDropdown([
-                        ["D3", "3"],
-                        ["D4", "4"],
-                        ["D5", "5"],
-                        ["D6", "6"],
-                        ["D7", "7"],
-                        ["D8", "8"],
-                        ["D9", "9"],
-                        ["D10", "10"],
-                        ["D11", "11"],
-                        ["D12", "12"],
-                        ["D13", "13"]
-                    ]),
+                    new Blockly.FieldDropdown(function() {
+
+                        return obterOpcoesPinosSaida();
+
+                    }),
                     "PINO"
                 )
                 .appendField("como")
@@ -224,15 +418,16 @@
 
             this.hasElse_ = false;
 
+            const blocoAtual = this;
+
             this.appendDummyInput()
                 .appendField("Se o pino")
                 .appendField(
-                    new Blockly.FieldDropdown([
-                        ["D3", "3"],
-                        ["D4", "4"],
-                        ["D5", "5"],
-                        ["D6", "6"]
-                    ]),
+                    new Blockly.FieldDropdown(function() {
+
+                        return obterOpcoesPinosSE(blocoAtual);
+
+                    }),
                     "PINO"
                 )
                 .appendField("estiver")
@@ -275,6 +470,9 @@
             //    do SEMPRE / FAÇA.
             //
             // 3. Avisar quando tentar adicionar o quinto SE.
+            //
+            // 4. Não permitir IF quando existir saída
+            //    utilizando D3, D4, D5 ou D6.
             // =====================================================
 
             this.setOnChange(function(event) {
@@ -285,10 +483,13 @@
                 if (!event ||
                     event.type !== Blockly.Events.BLOCK_MOVE ||
                     event.blockId !== this.id) {
+
                     return;
+
                 }
 
                 const bloco = this;
+
 
                 // -------------------------------------------------
                 // REGRA 1:
@@ -324,13 +525,12 @@
 
                     if (b.type !== 'ziblocks_se') continue;
 
-                    // Conta os SE que pertencem à mesma estrutura
-                    // do SEMPRE, incluindo os conectados em sequência.
                     if (b.getRootBlock() === raiz) {
                         quantidadeSE++;
                     }
 
                 }
+
 
                 // -------------------------------------------------
                 // REGRA 3:
@@ -342,13 +542,30 @@
 
                     bloco.unplug(true);
 
-                    if (window.AndroidBridge) {
+                    mostrarAviso(
+                        "Limite de condicionais atingido"
+                    );
 
-                        AndroidBridge.showToast(
-                            "Limite de condicionais atingido"
-                        );
+                    return;
 
-                    }
+                }
+
+
+                // -------------------------------------------------
+                // REGRA 4:
+                // Impedir IF se já houver saída utilizando
+                // D3, D4, D5 ou D6.
+                // -------------------------------------------------
+
+                if (existeConflitoComSaida()) {
+
+                    bloco.unplug(true);
+
+                    mostrarAviso(
+                        "Altere as saídas D3 a D6 antes de adicionar um SE"
+                    );
+
+                    return;
 
                 }
 
@@ -611,7 +828,7 @@
 
 
     // =====================================================
-    // FECHAR MUTATOR AO TOCAR NA ÁREA BRANCA
+    // FECHAR MUTATOR E TOOLBOX AO TOCAR NA ÁREA BRANCA
     // =====================================================
 
     document.addEventListener("pointerdown", function(event) {
@@ -620,32 +837,24 @@
 
         if (!(alvo instanceof Element)) return;
 
-        // O toque precisa acontecer dentro do workspace.
-        if (!alvo.closest("#blocklyDiv")) return;
-
-        // Não fecha ao tocar dentro da janela da engrenagem.
-        const tocouNoMutator = alvo.closest(
-            ".blocklyMutatorBubble, .blocklyBubbleCanvas"
+        // Só executa quando o toque ocorre no fundo vazio
+        // do workspace do Blockly.
+        const tocouNaAreaVazia = alvo.closest(
+            ".blocklyMainBackground"
         );
 
-        if (tocouNoMutator) return;
+        if (!tocouNaAreaVazia) return;
 
-        // Não fecha ao tocar na toolbox ou no flyout.
-        const tocouNaToolbox = alvo.closest(
-            ".blocklyToolbox, .blocklyToolboxDiv"
-        );
-
-        const tocouNoFlyout = alvo.closest(".blocklyFlyout");
-
-        if (tocouNaToolbox || tocouNoFlyout) return;
-
-        // Não fecha ao tocar em qualquer bloco.
-        const tocouEmBloco = alvo.closest(".blocklyDraggable");
-
-        if (tocouEmBloco) return;
-
-        // Se chegou aqui, o toque foi na área vazia.
+        // Fecha a janela da engrenagem.
         fecharMutatorAberto();
+
+        // Recolhe a toolbox sem chamar workspace.hideChaff().
+        // Isso evita interferir nos dropdowns do Blockly.
+        const toolbox = document.querySelector(".blocklyToolbox");
+
+        if (toolbox) {
+            toolbox.classList.add("toolboxHidden");
+        }
 
     }, true);
 
