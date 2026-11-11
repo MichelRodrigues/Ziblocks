@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.webkit.v1180)
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -43,7 +42,7 @@
 <!-- TOOLBOX -->
 <xml id="toolbox" style="display: none">
 
-    <category name="Pinos" colour="210">
+    <category name="Saídas" colour="210">
         <block type="ziblocks_pino_digital"></block>
     </category>
 
@@ -112,7 +111,7 @@
 
             this.appendStatementInput("DO");
 
-            this.setColour(30);
+            this.setColour("#FFD43B");
 
             this.setTooltip(
                 "Executa continuamente as instruções colocadas dentro deste bloco."
@@ -378,9 +377,53 @@
 
         toolbox: document.getElementById('toolbox'),
 
-        media: 'blockly/media/'
+        media: 'blockly/media/',
+
+        // CONFIGURAÇÃO DO ZOOM
+        zoom: {
+            controls: false,
+            wheel: false,
+            pinch: true,
+            startScale: 1.0,
+            maxScale: 2.5,
+            minScale: 0.5,
+            scaleSpeed: 1.2
+        }
 
     });
+
+
+    // =====================================================
+    // TESTE DE ÁUDIO DO BLOCKLY
+    // =====================================================
+
+    setTimeout(async function() {
+
+        const audio = workspace.getAudioManager();
+
+        console.log("1. Gerenciador:", audio);
+        console.log("2. Está mudo:", audio.getMuted());
+
+        try {
+
+            await audio.load(
+                ['blockly/media/click.mp3'],
+                'teste'
+            );
+
+            console.log("3. Arquivo carregado!");
+
+            await audio.play('teste');
+
+            console.log("4. Comando de reprodução executado!");
+
+        } catch (erro) {
+
+            console.error("ERRO NO TESTE:", erro);
+
+        }
+
+    }, 1000);
 
 
     // =====================================================
@@ -415,6 +458,8 @@
 
     function fecharToolbox() {
 
+        workspace.hideChaff();
+
         const toolbox = document.querySelector(".blocklyToolbox");
 
         if (toolbox) {
@@ -430,7 +475,10 @@
     }, 300);
 
 
-    // Fecha a toolbox ao arrastar um bloco no workspace principal.
+    // =====================================================
+    // FECHAR TOOLBOX AO ARRASTAR UM BLOCO
+    // =====================================================
+
     workspace.addChangeListener(function(event) {
 
         if (event.type === Blockly.Events.BLOCK_DRAG) {
@@ -441,27 +489,39 @@
 
 
     // =====================================================
-    // FECHAR TOOLBOX AO TOCAR FORA DELA
+    // FECHAR TOOLBOX AO TOCAR NA ÁREA LIVRE
     // =====================================================
 
     document.addEventListener("pointerdown", function(event) {
 
-        const toolbox = document.querySelector(".blocklyToolbox");
-        const flyout = document.querySelector(".blocklyFlyout");
+        const alvo = event.target;
 
-        if (!toolbox) return;
+        if (!(alvo instanceof Element)) return;
 
+        // O toque precisa acontecer dentro do workspace.
+        const dentroWorkspace = alvo.closest("#blocklyDiv");
+
+        if (!dentroWorkspace) return;
+
+        // Não fecha ao tocar na toolbox ou no flyout.
         const tocouNaToolbox =
-            toolbox.contains(event.target);
+            alvo.closest(".blocklyToolbox, .blocklyToolboxDiv");
 
         const tocouNoFlyout =
-            flyout && flyout.contains(event.target);
+            alvo.closest(".blocklyFlyout");
 
-        if (!tocouNaToolbox && !tocouNoFlyout) {
-            fecharToolbox();
-        }
+        if (tocouNaToolbox || tocouNoFlyout) return;
 
-    });
+        // Não fecha ao tocar em um bloco.
+        const tocouEmBloco =
+            alvo.closest(".blocklyDraggable");
+
+        if (tocouEmBloco) return;
+
+        // Qualquer toque em área livre do workspace fecha.
+        fecharToolbox();
+
+    }, true);
 
 
     // =====================================================

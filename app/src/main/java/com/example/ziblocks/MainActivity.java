@@ -5,9 +5,14 @@ import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.splashscreen.SplashScreen;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceError;
 import android.widget.ImageButton;
+import android.util.Log;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.webkit.WebViewAssetLoader;
+import androidx.core.splashscreen.SplashScreen;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,42 +22,93 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
-        btnToolbox = findViewById(R.id.btnToolbox);
-        btnToolbox.setOnClickListener(v -> {
-
-            webView.evaluateJavascript("alternarToolbox()", null);
-
-        });
 
         webView = findViewById(R.id.webview);
+        btnToolbox = findViewById(R.id.btnToolbox);
+
+        // Configura o carregamento dos arquivos locais por HTTPS.
+        WebViewAssetLoader assetLoader =
+                new WebViewAssetLoader.Builder()
+                        .addPathHandler(
+                                "/assets/",
+                                new WebViewAssetLoader.AssetsPathHandler(this)
+                        )
+                        .build();
+
+        // Configurações do WebView.
         WebSettings webSettings = webView.getSettings();
+
         webSettings.setJavaScriptEnabled(true);
+
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
+
+        // Cliente do WebView.
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
-            public void onReceivedError(WebView view,
-                                        android.webkit.WebResourceRequest request,
-                                        android.webkit.WebResourceError error) {
-                super.onReceivedError(view, request, error);
+            public android.webkit.WebResourceResponse shouldInterceptRequest(
+                    WebView view,
+                    WebResourceRequest request) {
 
-                android.util.Log.e(
-                        "WEBVIEW",
-                        request.getUrl().toString() + " -> " + error.getDescription()
+                return assetLoader.shouldInterceptRequest(
+                        request.getUrl()
                 );
             }
+
+            @Override
+            public void onReceivedError(
+                    WebView view,
+                    WebResourceRequest request,
+                    WebResourceError error) {
+
+                super.onReceivedError(view, request, error);
+
+                Log.e(
+                        "WEBVIEW",
+                        request.getUrl().toString()
+                                + " -> "
+                                + error.getDescription()
+                );
+            }
+
         });
-        webView.loadUrl("file:///android_asset/blockly.html");
+
+        // Botão para abrir e fechar a Toolbox.
+        btnToolbox.setOnClickListener(v -> {
+
+            webView.evaluateJavascript(
+                    "alternarToolbox()",
+                    null
+            );
+
+        });
+
+        // Carrega o Blockly utilizando HTTPS virtual.
+        webView.loadUrl(
+                "https://appassets.androidplatform.net/assets/blockly.html"
+        );
+
     }
 
     @Override
     public void onBackPressed() {
+
         if (webView.canGoBack()) {
+
             webView.goBack();
+
         } else {
+
             super.onBackPressed();
+
         }
+
     }
+
 }
