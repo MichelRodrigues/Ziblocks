@@ -28,110 +28,208 @@
 
         .blocklyToolbox {
             transition: transform .25s ease;
+            transform: translateX(0);
         }
 
         .toolboxHidden {
             transform: translateX(-100%);
         }
+
         /* =====================================================
-   ESTILO DAS CATEGORIAS DA TOOLBOX
-   ===================================================== */
+           ESTILO DAS CATEGORIAS DA TOOLBOX
+           ===================================================== */
 
-.blocklyTreeRoot {
-    padding: 8px 5px !important;
-}
+        .blocklyTreeRoot {
+            padding: 28px 5px 100px !important;
+        }
 
-.blocklyTreeRow {
-    height: 52px !important;
-    line-height: 52px !important;
+        .blocklyTreeRow {
+            height: 52px !important;
+            line-height: 52px !important;
 
-    margin: 8px 6px !important;
-    padding: 0 12px !important;
+            margin: 8px 6px !important;
+            padding: 0 12px !important;
 
-    border-radius: 12px !important;
+            border-radius: 12px !important;
 
-    box-sizing: border-box;
+            box-sizing: border-box;
 
-    box-shadow:
-        inset 0 2px 2px rgba(255,255,255,0.25),
-        0 5px 0 rgba(0,0,0,0.25);
+            box-shadow:
+                inset 0 2px 2px rgba(255,255,255,0.25),
+                0 5px 0 rgba(0,0,0,0.25);
 
-    transition:
-        transform 0.12s ease,
-        box-shadow 0.12s ease,
-        filter 0.12s ease;
-}
+            transition:
+                transform 0.12s ease,
+                box-shadow 0.12s ease,
+                filter 0.12s ease;
+        }
 
-/* SAÍDAS - AZUL */
+        /* SAÍDAS - AZUL */
 
-.blocklyTreeRoot > .blocklyTreeRow:nth-of-type(1) {
-    background: linear-gradient(
-        180deg,
-        #4D9AE8,
-        #2164A8
-    ) !important;
-}
+        .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(1) {
+            background: linear-gradient(
+                180deg,
+                #4D9AE8,
+                #2164A8
+            ) !important;
+        }
 
-/* TEMPO - ROXO */
+        /* TEMPO - ROXO */
 
-.blocklyTreeRoot > .blocklyTreeRow:nth-of-type(2) {
-    background: linear-gradient(
-        180deg,
-        #AC75E8,
-        #7540B5
-    ) !important;
-}
+        .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(2) {
+            background: linear-gradient(
+                180deg,
+                #AC75E8,
+                #7540B5
+            ) !important;
+        }
 
-/* CONDIÇÕES - VERDE */
+        /* CONDIÇÕES - VERDE */
 
-.blocklyTreeRoot > .blocklyTreeRow:nth-of-type(3) {
-    background: linear-gradient(
-        180deg,
-        #65C77D,
-        #298449
-    ) !important;
-}
+        .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(3) {
+            background: linear-gradient(
+                180deg,
+                #65C77D,
+                #298449
+            ) !important;
+        }
 
-/* TEXTO DAS CATEGORIAS */
+        /* TEXTO DAS CATEGORIAS */
 
-.blocklyTreeLabel {
-    color: #FFFFFF !important;
-    font-size: 28px !important;
-    font-weight: bold !important;
-}
+        .blocklyTreeLabel {
+            color: #FFFFFF !important;
+            font-size: 28px !important;
+            font-weight: bold !important;
+        }
 
-/* EFEITO AO PASSAR O MOUSE */
+        /* EFEITO AO PASSAR O MOUSE */
 
-.blocklyTreeRow:hover {
-    filter: brightness(1.12);
-    transform: translateY(-1px);
+        .blocklyTreeRow:hover {
+            filter: brightness(1.12);
+            transform: translateY(-1px);
 
-    box-shadow:
-        inset 0 2px 2px rgba(255,255,255,0.3),
-        0 6px 0 rgba(0,0,0,0.25);
-}
+            box-shadow:
+                inset 0 2px 2px rgba(255,255,255,0.3),
+                0 6px 0 rgba(0,0,0,0.25);
+        }
 
-/* CATEGORIA SELECIONADA */
+        /* CATEGORIA SELECIONADA */
 
-.blocklyTreeRow.blocklyTreeSelected {
-    filter: brightness(1.15);
+        .blocklyTreeRow.blocklyTreeSelected {
+            filter: brightness(1.15);
 
-    box-shadow:
-        inset 0 2px 3px rgba(0,0,0,0.15),
-        0 2px 0 rgba(0,0,0,0.3);
+            box-shadow:
+                inset 0 2px 3px rgba(0,0,0,0.15),
+                0 2px 0 rgba(0,0,0,0.3);
 
-    transform: translateY(3px);
-}
+            transform: translateY(3px);
+        }
 
-/* EFEITO DE CLIQUE */
+        /* EFEITO DE CLIQUE */
 
-.blocklyTreeRow:active {
-    transform: translateY(4px);
+        .blocklyTreeRow:active {
+            transform: translateY(4px);
 
-    box-shadow:
-        inset 0 3px 5px rgba(0,0,0,0.2),
-        0 1px 0 rgba(0,0,0,0.2);
-}
+            box-shadow:
+                inset 0 3px 5px rgba(0,0,0,0.2),
+                0 1px 0 rgba(0,0,0,0.2);
+        }
+
+        /* =====================================================
+           BOTÕES COMPACTOS NO RODAPÉ DA TOOLBOX
+           ===================================================== */
+
+        .ziblocksToolboxActions {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+
+            padding: 8px;
+
+            box-sizing: border-box;
+
+            background: transparent;
+            border-top: 1px solid rgba(255,255,255,0.10);
+
+            z-index: 1000;
+        }
+
+        /* ESTILO BASE DOS BOTÕES */
+
+        .ziblocksActionButton {
+            width: 90%;
+            height: 32px;
+            min-height: 32px;
+            margin: 0 auto;
+
+            border: none;
+            border-radius: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            color: white;
+
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            box-shadow: 0 2px 3px rgba(0,0,0,0.18);
+
+            transition:
+                filter 0.12s ease,
+                transform 0.12s ease,
+                opacity 0.2s ease;
+        }
+
+        /* BOTÃO DESABILITADO */
+
+        .ziblocksActionButton:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            filter: grayscale(0.3);
+            box-shadow: none;
+        }
+
+        /* ÍCONES */
+
+        .ziblocksActionIcon {
+            font-size: 15px;
+            line-height: 1;
+        }
+
+        /* CONECTAR - LARANJA */
+
+        .ziblocksConnect {
+            background: #E9822B;
+        }
+
+        /* CARREGAR - AZUL ARROXEADO */
+
+        .ziblocksUpload {
+            background: #5055A5;
+        }
+
+        /* EFEITO AO TOCAR */
+
+        .ziblocksActionButton:active:not(:disabled) {
+            transform: scale(0.98);
+            filter: brightness(0.92);
+        }
+
+        .ziblocksActionButton:hover:not(:disabled) {
+            filter: brightness(1.08);
+        }
+
     </style>
 </head>
 
@@ -160,12 +258,6 @@
 
     // =====================================================
     // CONTROLE DOS PINOS DIGITAIS
-    //
-    // D3 a D6: entradas dos blocos SE.
-    // D7 a D13: saídas quando existir pelo menos um SE.
-    //
-    // Sem nenhum SE, todos os pinos ficam disponíveis
-    // para saídas.
     // =====================================================
 
     const PINOS_DIGITAIS = [
@@ -237,7 +329,6 @@
 
             if (bloco.type !== "ziblocks_se") return;
 
-            // Ignora o próprio IF.
             if (bloco === blocoIgnorado) return;
 
             const pino = bloco.getFieldValue("PINO");
@@ -255,9 +346,6 @@
 
     // =====================================================
     // OPÇÕES DOS PINOS DE SAÍDA
-    //
-    // Sem IF: D3 até D13.
-    // Com IF: D7 até D13.
     // =====================================================
 
     function obterOpcoesPinosSaida() {
@@ -273,9 +361,6 @@
 
     // =====================================================
     // OPÇÕES DOS PINOS DOS IFs
-    //
-    // Cada IF pode utilizar D3, D4, D5 ou D6.
-    // Um pino já utilizado por outro IF não aparece.
     // =====================================================
 
     function obterOpcoesPinosSE(blocoAtual) {
@@ -293,9 +378,6 @@
 
         });
 
-        // O Blockly exige pelo menos uma opção no dropdown.
-        // Isso pode acontecer ao tentar adicionar um quinto IF.
-
         if (opcoes.length === 0) {
 
             return [
@@ -311,9 +393,6 @@
 
     // =====================================================
     // VERIFICA CONFLITOS ENTRE ENTRADAS E SAÍDAS
-    //
-    // Se já existir uma saída usando D3, D4, D5 ou D6,
-    // não permite adicionar um IF ao programa.
     // =====================================================
 
     function existeConflitoComSaida() {
@@ -439,9 +518,7 @@
                 .appendField("Definir pino")
                 .appendField(
                     new Blockly.FieldDropdown(function() {
-
                         return obterOpcoesPinosSaida();
-
                     }),
                     "PINO"
                 )
@@ -523,9 +600,7 @@
                 .appendField("Se o pino")
                 .appendField(
                     new Blockly.FieldDropdown(function() {
-
                         return obterOpcoesPinosSE(blocoAtual);
-
                     }),
                     "PINO"
                 )
@@ -550,7 +625,6 @@
                 "Executa as instruções se a condição for verdadeira."
             );
 
-            // Engrenagem do Blockly.
             this.setMutator(
                 new Blockly.icons.MutatorIcon(
                     ['ziblocks_se_mutator_senao'],
@@ -559,61 +633,44 @@
             );
 
 
-            // =====================================================
+            // =================================================
             // REGRAS DOS BLOCOS SE
-            //
-            // 1. Não permitir SE dentro do FAÇA ou SENÃO
-            //    de outro SE.
-            //
-            // 2. Permitir até 4 SE independentes dentro
-            //    do SEMPRE / FAÇA.
-            //
-            // 3. Avisar quando tentar adicionar o quinto SE.
-            //
-            // 4. Não permitir IF quando existir saída
-            //    utilizando D3, D4, D5 ou D6.
-            // =====================================================
+            // =================================================
 
             this.setOnChange(function(event) {
 
                 if (!this.workspace) return;
 
-                // Processa somente movimentos deste bloco.
-                if (!event ||
+                if (
+                    !event ||
                     event.type !== Blockly.Events.BLOCK_MOVE ||
-                    event.blockId !== this.id) {
-
+                    event.blockId !== this.id
+                ) {
                     return;
-
                 }
 
                 const bloco = this;
 
 
-                // -------------------------------------------------
                 // REGRA 1:
                 // Impedir SE dentro do FAÇA ou SENÃO de outro SE.
-                // -------------------------------------------------
 
                 const paiEstrutural = bloco.getSurroundParent();
 
-                if (paiEstrutural &&
-                    paiEstrutural.type === 'ziblocks_se') {
-
+                if (
+                    paiEstrutural &&
+                    paiEstrutural.type === 'ziblocks_se'
+                ) {
                     bloco.unplug(true);
                     return;
-
                 }
 
 
-                // -------------------------------------------------
                 // REGRA 2:
                 // Máximo de 4 blocos SE dentro do SEMPRE.
-                // -------------------------------------------------
 
                 const raiz = bloco.getRootBlock();
 
-                // Só aplica o limite aos blocos ligados ao SEMPRE.
                 if (raiz.type !== 'ziblocks_sempre') return;
 
                 const todosBlocos = bloco.workspace.getAllBlocks(false);
@@ -631,11 +688,8 @@
                 }
 
 
-                // -------------------------------------------------
                 // REGRA 3:
-                // Se ultrapassar quatro, desconecta o bloco
-                // e mostra um Toast no Android.
-                // -------------------------------------------------
+                // Se ultrapassar quatro, desconecta o bloco.
 
                 if (quantidadeSE > 4) {
 
@@ -650,11 +704,8 @@
                 }
 
 
-                // -------------------------------------------------
                 // REGRA 4:
-                // Impedir IF se já houver saída utilizando
-                // D3, D4, D5 ou D6.
-                // -------------------------------------------------
+                // Impedir IF se já houver saída utilizando D3 a D6.
 
                 if (existeConflitoComSaida()) {
 
@@ -673,7 +724,6 @@
         },
 
 
-        // Salva a configuração do bloco.
         mutationToDom: function() {
 
             var container = document.createElement('mutation');
@@ -687,7 +737,6 @@
         },
 
 
-        // Restaura a configuração.
         domToMutation: function(xmlElement) {
 
             this.hasElse_ =
@@ -698,7 +747,6 @@
         },
 
 
-        // Monta o editor da engrenagem.
         decompose: function(workspace) {
 
             var containerBlock =
@@ -725,7 +773,6 @@
         },
 
 
-        // Aplica a escolha feita na engrenagem.
         compose: function(containerBlock) {
 
             var itemBlock =
@@ -749,7 +796,6 @@
         },
 
 
-        // Atualiza o formato do bloco.
         updateShape_: function() {
 
             if (this.hasElse_) {
@@ -764,9 +810,7 @@
             } else {
 
                 if (this.getInput('ELSE')) {
-
                     this.removeInput('ELSE');
-
                 }
 
             }
@@ -786,7 +830,6 @@
 
         media: 'blockly/media/',
 
-        // CONFIGURAÇÃO DO ZOOM
         zoom: {
             controls: false,
             wheel: false,
@@ -798,6 +841,105 @@
         }
 
     });
+
+
+    // =====================================================
+    // CRIAÇÃO DOS BOTÕES DA TOOLBOX
+    // =====================================================
+
+    function criarBotoesToolbox() {
+
+        const toolbox = document.querySelector(".blocklyToolbox");
+
+        if (!toolbox) {
+            console.error("Não foi possível localizar a toolbox.");
+            return;
+        }
+
+        if (toolbox.querySelector(".ziblocksToolboxActions")) {
+            return;
+        }
+
+        // Cria o rodapé.
+        const rodape = document.createElement("div");
+
+        rodape.className = "ziblocksToolboxActions";
+
+
+        // BOTÃO CONECTAR.
+
+        const botaoConectar = document.createElement("button");
+
+        botaoConectar.type = "button";
+        botaoConectar.className =
+            "ziblocksActionButton ziblocksConnect";
+
+        botaoConectar.innerHTML = `
+            <span class="ziblocksActionIcon">⚡</span>
+            <span>Conectar</span>
+        `;
+
+
+        // BOTÃO CARREGAR.
+
+        const botaoCarregar = document.createElement("button");
+
+        botaoCarregar.type = "button";
+        botaoCarregar.className =
+            "ziblocksActionButton ziblocksUpload";
+
+        botaoCarregar.innerHTML = `
+            <span class="ziblocksActionIcon">📤</span>
+            <span>Carregar</span>
+        `;
+
+
+        // =================================================
+// CONTROLE DE HABILITAÇÃO DOS BOTÕES
+// =================================================
+
+// Carregar começa desabilitado.
+botaoCarregar.disabled = true;
+
+// Conectar habilita Carregar.
+botaoConectar.addEventListener("click", function() {
+
+    botaoCarregar.disabled = false;
+
+});
+
+// Carregar volta a ficar desabilitado após ser pressionado.
+botaoCarregar.addEventListener("click", function() {
+
+    botaoCarregar.disabled = true;
+
+});
+
+
+        // Impede que os cliques nos botões sejam
+        // interpretados como seleção da toolbox.
+
+        rodape.addEventListener("pointerdown", function(event) {
+            event.stopPropagation();
+        });
+
+        rodape.addEventListener("click", function(event) {
+            event.stopPropagation();
+        });
+
+
+        // Adiciona os dois botões ao rodapé.
+
+        rodape.appendChild(botaoConectar);
+        rodape.appendChild(botaoCarregar);
+
+        toolbox.appendChild(rodape);
+
+    }
+
+
+    // Aguarda o Blockly montar sua interface.
+    setTimeout(criarBotoesToolbox, 300);
 
 
     // =====================================================
@@ -936,19 +1078,14 @@
 
         if (!(alvo instanceof Element)) return;
 
-        // Só executa quando o toque ocorre no fundo vazio
-        // do workspace do Blockly.
         const tocouNaAreaVazia = alvo.closest(
             ".blocklyMainBackground"
         );
 
         if (!tocouNaAreaVazia) return;
 
-        // Fecha a janela da engrenagem.
         fecharMutatorAberto();
 
-        // Recolhe a toolbox sem chamar workspace.hideChaff().
-        // Isso evita interferir nos dropdowns do Blockly.
         const toolbox = document.querySelector(".blocklyToolbox");
 
         if (toolbox) {
@@ -992,7 +1129,6 @@
         const distanciaY =
             Math.abs(event.clientY - arrasteInicioY);
 
-        // Ignora cliques simples; considera apenas arrastes.
         if (distanciaX < 8 && distanciaY < 8) return;
 
         const destino = document.elementFromPoint(
@@ -1024,7 +1160,6 @@
 
         const alvo = e.target;
 
-        // Não interpreta arrastes de blocos como gestos.
         const iniciouEmBloco =
             alvo instanceof Element &&
             !!alvo.closest(
