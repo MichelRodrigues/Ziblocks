@@ -1,4 +1,3 @@
-
 package com.example.ziblocks;
 
 import android.annotation.SuppressLint;
@@ -10,17 +9,24 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceError;
 import android.webkit.JavascriptInterface;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.util.Log;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebViewAssetLoader;
-import androidx.core.splashscreen.SplashScreen;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
-    private ImageButton btnToolbox;
+    private ImageView splashOverlay;
+
+    // Tempo mínimo de exibição da splash (2 segundos).
+    private static final long TEMPO_MINIMO_SPLASH = 2000;
+
+    private long inicioSplash;
+    private boolean splashRemovida = false;
 
     // Interface para comunicação entre JavaScript e Android.
     private class AndroidBridge {
@@ -46,14 +52,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        SplashScreen.installSplashScreen(this);
-
         super.onCreate(savedInstanceState);
+
+        // Registra o início da splash.
+        inicioSplash = System.currentTimeMillis();
 
         setContentView(R.layout.activity_main);
 
         webView = findViewById(R.id.webview);
-        btnToolbox = findViewById(R.id.btnToolbox);
+        splashOverlay = findViewById(R.id.splashOverlay);
+
+        ImageButton btnToolbox = findViewById(R.id.btnToolbox);
 
         // Configura o carregamento dos arquivos locais por HTTPS.
         WebViewAssetLoader assetLoader =
@@ -68,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = webView.getSettings();
 
         webSettings.setJavaScriptEnabled(true);
-
         webSettings.setMediaPlaybackRequiresUserGesture(false);
 
         // Disponibiliza a interface Android para o JavaScript.
@@ -91,6 +99,36 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onPageFinished(WebView view, String url) {
+
+                super.onPageFinished(view, url);
+
+                // Calcula quanto tempo a splash já ficou visível.
+                long tempoDecorrido =
+                        System.currentTimeMillis() - inicioSplash;
+
+                // Calcula quanto falta para completar 2 segundos.
+                long tempoRestante = Math.max(
+                        0,
+                        TEMPO_MINIMO_SPLASH - tempoDecorrido
+                );
+
+                // Remove a splash após o tempo mínimo.
+                splashOverlay.postDelayed(() -> {
+
+                    if (!splashRemovida) {
+
+                        splashRemovida = true;
+
+                        splashOverlay.setVisibility(View.GONE);
+
+                    }
+
+                }, tempoRestante);
+
+            }
+
+            @Override
             public void onReceivedError(
                     WebView view,
                     WebResourceRequest request,
@@ -104,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                                 + " -> "
                                 + error.getDescription()
                 );
+
             }
 
         });

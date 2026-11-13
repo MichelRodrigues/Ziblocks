@@ -1,26 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.Ziblocks.Splash" parent="Theme.SplashScreen">
 
-        <!-- Fundo da Splash -->
-        <item name="windowSplashScreenBackground">#F2FB94</item>
-
-        <item name="android:windowFullscreen">true</item>
-
-        <!-- Logo -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/zibbots</item>
-
-        <!-- Cor do fundo do ícone (opcional) -->
-        <item name="windowSplashScreenIconBackgroundColor">#F2FB94</item>
-
-        <!-- Tema que será usado depois -->
-        <item name="postSplashScreenTheme">@style/Theme.Ziblocks</item>
-
-    </style>
     <style name="Base.Theme.Ziblocks" parent="Theme.Material3.DayNight.NoActionBar">
+
         <item name="android:statusBarColor">#F2FB94</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#F2FB94</item>
+
     </style>
 
     <style name="Theme.Ziblocks" parent="Base.Theme.Ziblocks" />
+
 </resources>

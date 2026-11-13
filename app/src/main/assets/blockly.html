@@ -651,7 +651,6 @@
 
                 const bloco = this;
 
-
                 // REGRA 1:
                 // Impedir SE dentro do FAÇA ou SENÃO de outro SE.
 
@@ -664,7 +663,6 @@
                     bloco.unplug(true);
                     return;
                 }
-
 
                 // REGRA 2:
                 // Máximo de 4 blocos SE dentro do SEMPRE.
@@ -687,7 +685,6 @@
 
                 }
 
-
                 // REGRA 3:
                 // Se ultrapassar quatro, desconecta o bloco.
 
@@ -702,7 +699,6 @@
                     return;
 
                 }
-
 
                 // REGRA 4:
                 // Impedir IF se já houver saída utilizando D3 a D6.
@@ -842,6 +838,14 @@
 
     });
 
+    // Impede que a toolbox apague blocos quando eles forem soltos sobre ela.
+    const toolbox = workspace.getToolbox();
+
+    workspace.getComponentManager().removeCapability(
+        toolbox.id,
+        Blockly.ComponentManager.Capability.DELETE_AREA
+    );
+
 
     // =====================================================
     // CRIAÇÃO DOS BOTÕES DA TOOLBOX
@@ -895,25 +899,109 @@
 
 
         // =================================================
-// CONTROLE DE HABILITAÇÃO DOS BOTÕES
-// =================================================
+        // CONTROLE DE HABILITAÇÃO DOS BOTÕES
+        // =================================================
 
-// Carregar começa desabilitado.
-botaoCarregar.disabled = true;
+        // Carregar começa desabilitado.
+        botaoCarregar.disabled = true;
 
-// Conectar habilita Carregar.
-botaoConectar.addEventListener("click", function() {
+        // Conectar habilita Carregar.
+        botaoConectar.addEventListener("click", function() {
 
-    botaoCarregar.disabled = false;
+            botaoCarregar.disabled = false;
 
-});
+        });
 
-// Carregar volta a ficar desabilitado após ser pressionado.
-botaoCarregar.addEventListener("click", function() {
+        // Carregar verifica o programa antes de permitir
+        // o envio dos dados para a placa.
+        botaoCarregar.addEventListener("click", function(event) {
 
-    botaoCarregar.disabled = true;
+            const blocos = workspace.getAllBlocks(false);
 
-});
+            // Obtém os blocos que pertencem ao Sempre / Faça.
+            const blocosDentro = blocos.filter(function(bloco) {
+
+                return bloco !== blocoSempre &&
+                       bloco.getRootBlock() === blocoSempre;
+
+            });
+
+
+            // =================================================
+            // REGRA 1: BLOCO PRINCIPAL VAZIO
+            // =================================================
+
+            if (blocosDentro.length === 0) {
+
+                mostrarAviso(
+                    "Não há blocos dentro do bloco Principal!"
+                );
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                return;
+
+            }
+
+
+            // =================================================
+            // REGRA 2: SOMENTE BLOCOS DE TEMPO
+            // =================================================
+
+            const somenteBlocosTempo = blocosDentro.every(function(bloco) {
+
+                return bloco.type === "ziblocks_aguardar";
+
+            });
+
+            if (somenteBlocosTempo) {
+
+                mostrarAviso(
+                    "Não é possível carregar só blocos de Tempo!"
+                );
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                return;
+
+            }
+
+
+            // =================================================
+            // REGRA 3: BLOCOS FORA DO SEMPRE / FAÇA
+            // =================================================
+
+            const existemBlocosFora = blocos.some(function(bloco) {
+
+                return bloco !== blocoSempre &&
+                       bloco.getRootBlock() !== blocoSempre;
+
+            });
+
+            if (existemBlocosFora) {
+
+                mostrarAviso(
+                    "Existem blocos fora do Bloco Principal"
+                );
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                return;
+
+            }
+
+
+            // =================================================
+            // REGRA 4: CARREGAMENTO VÁLIDO
+            // =================================================
+
+            // Desabilita Carregar até Conectar ser pressionado novamente.
+            botaoCarregar.disabled = true;
+
+        });
 
 
         // Impede que os cliques nos botões sejam
@@ -987,7 +1075,7 @@ botaoCarregar.addEventListener("click", function() {
     blocoSempre.setDeletable(false);
     blocoSempre.setMovable(true);
 
-    blocoSempre.moveBy(40, 40);
+    blocoSempre.moveBy(10, 120);
 
 
     // =====================================================
