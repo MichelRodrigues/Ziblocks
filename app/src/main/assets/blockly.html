@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -368,6 +369,99 @@
 
 
     // =====================================================
+    // REFERÊNCIAS DOS BOTÕES DA TOOLBOX
+    // =====================================================
+
+    let botaoConectarToolbox = null;
+    let botaoCarregarToolbox = null;
+
+
+    // =====================================================
+    // RETORNO DAS TRANSMISSÕES REALIZADAS PELO ANDROID
+    // =====================================================
+
+    // O aplicativo informa apenas o início e o término
+    // da transmissão dos pulsos.
+    //
+    // Não existe confirmação de recebimento ou interpretação
+    // do programa pela placa.
+    //
+    // A identificação de erros do programa é responsabilidade
+    // da própria placa, por meio do LED de erro.
+
+
+    function ziblocksTransmissaoIniciada(acao, mensagem) {
+
+        // Conectar permanece sempre disponível.
+        if (botaoConectarToolbox) {
+            botaoConectarToolbox.disabled = false;
+        }
+
+        // Carregar fica bloqueado durante qualquer transmissão.
+        if (botaoCarregarToolbox) {
+            botaoCarregarToolbox.disabled = true;
+        }
+
+    }
+
+
+    function ziblocksTransmissaoConcluida(acao, mensagem) {
+
+        // Conectar permanece sempre disponível.
+        if (botaoConectarToolbox) {
+            botaoConectarToolbox.disabled = false;
+        }
+
+        if (acao === "conectar") {
+
+            // A sequência de conexão terminou de ser transmitida.
+            // Libera o botão Carregar.
+
+            if (botaoCarregarToolbox) {
+                botaoCarregarToolbox.disabled = false;
+            }
+
+        }
+
+        if (acao === "carregar") {
+
+            // A sequência do programa terminou de ser transmitida.
+            // É necessário enviar Conectar novamente
+            // antes de outro carregamento.
+
+            if (botaoCarregarToolbox) {
+                botaoCarregarToolbox.disabled = true;
+            }
+
+        }
+
+    }
+
+
+    function ziblocksTransmissaoErro(acao, mensagem) {
+
+        // Este retorno trata somente de falhas na transmissão
+        // realizada pelo aplicativo Android.
+        //
+        // Não representa erro de interpretação da placa.
+
+        if (botaoConectarToolbox) {
+            botaoConectarToolbox.disabled = false;
+        }
+
+        if (botaoCarregarToolbox) {
+            botaoCarregarToolbox.disabled =
+                acao === "carregar";
+        }
+
+        if (mensagem) {
+            mostrarAviso(mensagem);
+        }
+
+    }
+
+
+    // =====================================================
     // VERIFICA SE EXISTE ALGUM BLOCO SE
     // =====================================================
 
@@ -501,7 +595,7 @@
         if (window.AndroidBridge) {
             AndroidBridge.showToast(mensagem);
         } else {
-            console.log(mensagem);
+            alert(mensagem);
         }
 
     }
@@ -1032,26 +1126,28 @@
                 grupos.push(...gruposDO);
 
 
-// Marcador separador obrigatório.
-// É o complemento do último bit da condição.
+                // Marcador separador obrigatório.
+                // É o complemento do último bit da condição.
 
-const separador =
-    condicao.endsWith("1") ? "0" : "1";
+                const separador =
+                    condicao.endsWith("1") ? "0" : "1";
 
-grupos.push(separador);
+                grupos.push(separador);
 
-// Corpo do SENÃO, se existir.
-if (bloco.hasElse_) {
 
-    const primeiroELSE =
-        bloco.getInputTargetBlock("ELSE");
+                // Corpo do SENÃO, se existir.
 
-    const gruposELSE =
-        codificarSequencia(primeiroELSE);
+                if (bloco.hasElse_) {
 
-    grupos.push(...gruposELSE);
+                    const primeiroELSE =
+                        bloco.getInputTargetBlock("ELSE");
 
-}
+                    const gruposELSE =
+                        codificarSequencia(primeiroELSE);
+
+                    grupos.push(...gruposELSE);
+
+                }
 
 
                 // Marcador final da condicional.
@@ -1160,7 +1256,15 @@ if (bloco.hasElse_) {
                     "Existe um bloco SE sem instruções dentro do FAÇA!"
                 );
             }
-
+// O corpo do SENÃO não pode estar vazio.
+if (
+    blocoSE.hasElse_ &&
+    !blocoSE.getInputTargetBlock("ELSE")
+) {
+    throw new Error(
+        "Existe um bloco SE com SENÃO sem instruções!"
+    );
+}
             // Não permitir condicionais aninhadas.
             const primeiroDO =
                 blocoSE.getInputTargetBlock("DO");
@@ -1369,7 +1473,6 @@ if (bloco.hasElse_) {
         const toolbox = document.querySelector(".blocklyToolbox");
 
         if (!toolbox) {
-            console.error("Não foi possível localizar a toolbox.");
             return;
         }
 
@@ -1409,7 +1512,15 @@ if (bloco.hasElse_) {
         `;
 
 
-        // Carregar começa desabilitado.
+        // Guarda as referências para os callbacks do Android.
+
+        botaoConectarToolbox = botaoConectar;
+        botaoCarregarToolbox = botaoCarregar;
+
+
+        // Estado inicial dos botões.
+
+        botaoConectar.disabled = false;
         botaoCarregar.disabled = true;
 
 
@@ -1417,9 +1528,35 @@ if (bloco.hasElse_) {
         // CONECTAR
         // =================================================
 
-        botaoConectar.addEventListener("click", function() {
+        botaoConectar.addEventListener("click", function(event) {
 
-            botaoCarregar.disabled = false;
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (
+                !window.AndroidBridge ||
+                typeof AndroidBridge.transmitir !== "function"
+            ) {
+
+                mostrarAviso(
+                    "Não foi possível acessar a transmissão Android."
+                );
+
+                return;
+
+            }
+
+            // Conectar permanece sempre disponível.
+            // Bloqueia somente Carregar durante o envio.
+
+            botaoCarregar.disabled = true;
+
+            // Sequência de conexão: oito zeros.
+
+            AndroidBridge.transmitir(
+                "00000000",
+                "conectar"
+            );
 
         });
 
@@ -1433,36 +1570,45 @@ if (bloco.hasElse_) {
             event.preventDefault();
             event.stopPropagation();
 
+            if (botaoCarregar.disabled) return;
+
+            if (
+                !window.AndroidBridge ||
+                typeof AndroidBridge.transmitir !== "function"
+            ) {
+
+                mostrarAviso(
+                    "Não foi possível acessar a transmissão Android."
+                );
+
+                return;
+
+            }
+
             try {
+
+                // Gera os grupos binários a partir dos blocos.
 
                 const grupos = gerarSequenciaPrograma();
 
-                console.log(
-                    "Grupos binários gerados:",
-                    grupos
-                );
+                const sequencia = grupos.join(" ");
 
-                console.log(
-                    "Sequência binária:",
-                    grupos.join(" ")
-                );
-
-                mostrarSequenciaBinaria(grupos);
-
-                // Carregar volta a ficar desabilitado.
-                // Para gerar novamente, é necessário
-                // pressionar Conectar antes.
+                // Bloqueia Carregar durante a transmissão.
+                // Conectar permanece disponível.
 
                 botaoCarregar.disabled = true;
+
+                // Solicita ao Android a transmissão dos grupos.
+                // Os espaços separam os grupos, conforme o protocolo.
+
+                AndroidBridge.transmitir(
+                    sequencia,
+                    "carregar"
+                );
 
             } catch (erro) {
 
                 mostrarAviso(erro.message);
-
-                console.error(
-                    "Erro ao gerar sequência:",
-                    erro
-                );
 
             }
 
@@ -1491,39 +1637,6 @@ if (bloco.hasElse_) {
 
     // Aguarda o Blockly montar sua interface.
     setTimeout(criarBotoesToolbox, 300);
-
-
-    // =====================================================
-    // TESTE DE ÁUDIO DO BLOCKLY
-    // =====================================================
-
-    setTimeout(async function() {
-
-        const audio = workspace.getAudioManager();
-
-        console.log("1. Gerenciador:", audio);
-        console.log("2. Está mudo:", audio.getMuted());
-
-        try {
-
-            await audio.load(
-                ['blockly/media/click.mp3'],
-                'teste'
-            );
-
-            console.log("3. Arquivo carregado!");
-
-            await audio.play('teste');
-
-            console.log("4. Comando de reprodução executado!");
-
-        } catch (erro) {
-
-            console.error("ERRO NO TESTE:", erro);
-
-        }
-
-    }, 1000);
 
 
     // =====================================================
