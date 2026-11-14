@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -46,12 +45,9 @@
         .blocklyTreeRow {
             height: 52px !important;
             line-height: 52px !important;
-
             margin: 8px 6px !important;
             padding: 0 12px !important;
-
             border-radius: 12px !important;
-
             box-sizing: border-box;
 
             box-shadow:
@@ -65,7 +61,6 @@
         }
 
         /* SAÍDAS - AZUL */
-
         .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(1) {
             background: linear-gradient(
                 180deg,
@@ -75,7 +70,6 @@
         }
 
         /* TEMPO - ROXO */
-
         .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(2) {
             background: linear-gradient(
                 180deg,
@@ -85,7 +79,6 @@
         }
 
         /* CONDIÇÕES - VERDE */
-
         .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(3) {
             background: linear-gradient(
                 180deg,
@@ -95,14 +88,11 @@
         }
 
         /* TEXTO DAS CATEGORIAS */
-
         .blocklyTreeLabel {
             color: #FFFFFF !important;
             font-size: 28px !important;
             font-weight: bold !important;
         }
-
-        /* EFEITO AO PASSAR O MOUSE */
 
         .blocklyTreeRow:hover {
             filter: brightness(1.12);
@@ -112,8 +102,6 @@
                 inset 0 2px 2px rgba(255,255,255,0.3),
                 0 6px 0 rgba(0,0,0,0.25);
         }
-
-        /* CATEGORIA SELECIONADA */
 
         .blocklyTreeRow.blocklyTreeSelected {
             filter: brightness(1.15);
@@ -125,8 +113,6 @@
             transform: translateY(3px);
         }
 
-        /* EFEITO DE CLIQUE */
-
         .blocklyTreeRow:active {
             transform: translateY(4px);
 
@@ -136,7 +122,7 @@
         }
 
         /* =====================================================
-           BOTÕES COMPACTOS NO RODAPÉ DA TOOLBOX
+           BOTÕES DA TOOLBOX
            ===================================================== */
 
         .ziblocksToolboxActions {
@@ -150,7 +136,6 @@
             gap: 30px;
 
             padding: 8px;
-
             box-sizing: border-box;
 
             background: transparent;
@@ -158,8 +143,6 @@
 
             z-index: 1000;
         }
-
-        /* ESTILO BASE DOS BOTÕES */
 
         .ziblocksActionButton {
             width: 90%;
@@ -176,7 +159,6 @@
             gap: 7px;
 
             color: white;
-
             font-family: Arial, sans-serif;
             font-size: 14px;
             font-weight: bold;
@@ -191,8 +173,6 @@
                 opacity 0.2s ease;
         }
 
-        /* BOTÃO DESABILITADO */
-
         .ziblocksActionButton:disabled {
             opacity: 0.35;
             cursor: not-allowed;
@@ -200,26 +180,18 @@
             box-shadow: none;
         }
 
-        /* ÍCONES */
-
         .ziblocksActionIcon {
             font-size: 15px;
             line-height: 1;
         }
 
-        /* CONECTAR - LARANJA */
-
         .ziblocksConnect {
             background: #E9822B;
         }
 
-        /* CARREGAR - AZUL ARROXEADO */
-
         .ziblocksUpload {
             background: #5055A5;
         }
-
-        /* EFEITO AO TOCAR */
 
         .ziblocksActionButton:active:not(:disabled) {
             transform: scale(0.98);
@@ -228,6 +200,109 @@
 
         .ziblocksActionButton:hover:not(:disabled) {
             filter: brightness(1.08);
+        }
+
+        /* =====================================================
+           JANELA DA SEQUÊNCIA BINÁRIA
+           ===================================================== */
+
+        .ziblocksBinaryOverlay {
+            position: fixed;
+            inset: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+            box-sizing: border-box;
+
+            background: rgba(0,0,0,0.65);
+            z-index: 10000;
+        }
+
+        .ziblocksBinaryWindow {
+            width: 100%;
+            max-width: 480px;
+
+            background: #FFFFFF;
+            border-radius: 16px;
+
+            padding: 20px;
+            box-sizing: border-box;
+
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+
+            font-family: Arial, sans-serif;
+        }
+
+        .ziblocksBinaryTitle {
+            margin: 0 0 8px;
+            color: #20243A;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .ziblocksBinaryDescription {
+            margin: 0 0 15px;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .ziblocksBinaryText {
+            width: 100%;
+            min-height: 120px;
+            max-height: 35vh;
+
+            padding: 12px;
+            box-sizing: border-box;
+
+            resize: vertical;
+
+            border: 1px solid #CCD0DA;
+            border-radius: 8px;
+
+            background: #F5F6FA;
+            color: #20243A;
+
+            font-family: monospace;
+            font-size: 16px;
+            line-height: 1.6;
+
+            overflow-wrap: anywhere;
+        }
+
+        .ziblocksBinaryButtons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .ziblocksBinaryButton {
+            flex: 1;
+            min-height: 42px;
+
+            border: none;
+            border-radius: 8px;
+
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .ziblocksBinaryCopy {
+            background: #5055A5;
+        }
+
+        .ziblocksBinaryClose {
+            background: #777D8C;
+        }
+
+        .ziblocksBinaryButton:active {
+            filter: brightness(0.9);
         }
 
     </style>
@@ -328,7 +403,6 @@
         blocos.forEach(function(bloco) {
 
             if (bloco.type !== "ziblocks_se") return;
-
             if (bloco === blocoIgnorado) return;
 
             const pino = bloco.getFieldValue("PINO");
@@ -379,11 +453,9 @@
         });
 
         if (opcoes.length === 0) {
-
             return [
                 ["Sem pinos disponíveis", "0"]
             ];
-
         }
 
         return opcoes;
@@ -427,13 +499,9 @@
     function mostrarAviso(mensagem) {
 
         if (window.AndroidBridge) {
-
             AndroidBridge.showToast(mensagem);
-
         } else {
-
             console.log(mensagem);
-
         }
 
     }
@@ -651,7 +719,6 @@
 
                 const bloco = this;
 
-                // REGRA 1:
                 // Impedir SE dentro do FAÇA ou SENÃO de outro SE.
 
                 const paiEstrutural = bloco.getSurroundParent();
@@ -664,7 +731,6 @@
                     return;
                 }
 
-                // REGRA 2:
                 // Máximo de 4 blocos SE dentro do SEMPRE.
 
                 const raiz = bloco.getRootBlock();
@@ -685,9 +751,6 @@
 
                 }
 
-                // REGRA 3:
-                // Se ultrapassar quatro, desconecta o bloco.
-
                 if (quantidadeSE > 4) {
 
                     bloco.unplug(true);
@@ -700,7 +763,6 @@
 
                 }
 
-                // REGRA 4:
                 // Impedir IF se já houver saída utilizando D3 a D6.
 
                 if (existeConflitoComSaida()) {
@@ -848,6 +910,457 @@
 
 
     // =====================================================
+    // CODIFICAÇÃO BINÁRIA
+    // =====================================================
+
+    const CODIGOS_TEMPO = {
+        "10": "0000",
+        "50": "0001",
+        "100": "0010",
+        "300": "0011",
+        "500": "0100",
+        "1000": "0101",
+        "2000": "0110",
+        "5000": "0111",
+        "10000": "1000"
+    };
+
+
+    // Converte um número para uma sequência binária
+    // com quantidade fixa de bits.
+
+    function paraBinario(valor, quantidadeBits) {
+
+        return Number(valor)
+            .toString(2)
+            .padStart(quantidadeBits, "0");
+
+    }
+
+
+    // =====================================================
+    // CODIFICA UM BLOCO INDIVIDUAL
+    // =====================================================
+
+    function codificarBloco(bloco) {
+
+        if (bloco.type === "ziblocks_pino_digital") {
+
+            const pino = Number(
+                bloco.getFieldValue("PINO")
+            );
+
+            const estado = Number(
+                bloco.getFieldValue("ESTADO")
+            );
+
+            const codigo = 2 * (pino - 3) + estado;
+
+            return paraBinario(codigo, 5);
+
+        }
+
+
+        if (bloco.type === "ziblocks_aguardar") {
+
+            const tempo = bloco.getFieldValue("TEMPO");
+
+            const codigo = CODIGOS_TEMPO[tempo];
+
+            if (!codigo) {
+                throw new Error("Tempo não reconhecido: " + tempo);
+            }
+
+            return codigo;
+
+        }
+
+
+        throw new Error(
+            "Tipo de bloco não reconhecido: " + bloco.type
+        );
+
+    }
+
+
+    // =====================================================
+    // CODIFICA UMA CONDIÇÃO SE
+    // =====================================================
+
+    function codificarCondicao(bloco) {
+
+        const pino = Number(
+            bloco.getFieldValue("PINO")
+        );
+
+        const estado = Number(
+            bloco.getFieldValue("ESTADO")
+        );
+
+        const codigo = 2 * (pino - 3) + estado;
+
+        return paraBinario(codigo, 3);
+
+    }
+
+
+    // =====================================================
+    // CODIFICA UMA SEQUÊNCIA DE BLOCOS
+    // =====================================================
+
+    function codificarSequencia(primeiroBloco) {
+
+        const grupos = [];
+
+        let bloco = primeiroBloco;
+
+        while (bloco) {
+
+            if (bloco.type === "ziblocks_se") {
+
+                const condicao = codificarCondicao(bloco);
+
+                // Corpo do SE.
+                const primeiroDO =
+                    bloco.getInputTargetBlock("DO");
+
+                const gruposDO =
+                    codificarSequencia(primeiroDO);
+
+                grupos.push(condicao);
+
+                grupos.push(...gruposDO);
+
+
+// Marcador separador obrigatório.
+// É o complemento do último bit da condição.
+
+const separador =
+    condicao.endsWith("1") ? "0" : "1";
+
+grupos.push(separador);
+
+// Corpo do SENÃO, se existir.
+if (bloco.hasElse_) {
+
+    const primeiroELSE =
+        bloco.getInputTargetBlock("ELSE");
+
+    const gruposELSE =
+        codificarSequencia(primeiroELSE);
+
+    grupos.push(...gruposELSE);
+
+}
+
+
+                // Marcador final da condicional.
+                grupos.push("11");
+
+            } else {
+
+                grupos.push(codificarBloco(bloco));
+
+            }
+
+            bloco = bloco.getNextBlock();
+
+        }
+
+        return grupos;
+
+    }
+
+
+    // =====================================================
+    // VALIDAÇÃO E GERAÇÃO DA SEQUÊNCIA DO PROGRAMA
+    // =====================================================
+
+    function gerarSequenciaPrograma() {
+
+        const blocos = workspace.getAllBlocks(false);
+
+        const blocosDentro = blocos.filter(function(bloco) {
+
+            return bloco !== blocoSempre &&
+                   bloco.getRootBlock() === blocoSempre;
+
+        });
+
+        // Deve existir pelo menos uma instrução.
+        if (blocosDentro.length === 0) {
+            throw new Error(
+                "Não há blocos dentro do bloco Principal!"
+            );
+        }
+
+        // Não permitir blocos fora do Sempre / Faça.
+        const existemBlocosFora = blocos.some(function(bloco) {
+
+            return bloco !== blocoSempre &&
+                   bloco.getRootBlock() !== blocoSempre;
+
+        });
+
+        if (existemBlocosFora) {
+            throw new Error(
+                "Existem blocos fora do Bloco Principal"
+            );
+        }
+
+        // Deve existir pelo menos uma saída digital.
+        const existeSaida = blocosDentro.some(function(bloco) {
+            return bloco.type === "ziblocks_pino_digital";
+        });
+
+        if (!existeSaida) {
+            throw new Error(
+                "O programa precisa ter pelo menos uma saída digital!"
+            );
+        }
+
+        // Validar condicionais.
+        const blocosSE = blocosDentro.filter(function(bloco) {
+            return bloco.type === "ziblocks_se";
+        });
+
+        if (blocosSE.length > 4) {
+            throw new Error(
+                "O limite é de quatro blocos SE!"
+            );
+        }
+
+        const pinosSE = new Set();
+
+        for (const blocoSE of blocosSE) {
+
+            const pino = String(
+                blocoSE.getFieldValue("PINO")
+            );
+
+            // Não permitir repetir pino de entrada.
+            if (pinosSE.has(pino)) {
+                throw new Error(
+                    "O pino D" + pino + " está sendo utilizado em mais de uma condição!"
+                );
+            }
+
+            pinosSE.add(pino);
+
+            // Somente D3 a D6 podem ser entradas.
+            if (!["3", "4", "5", "6"].includes(pino)) {
+                throw new Error(
+                    "As condições só podem utilizar os pinos D3 a D6!"
+                );
+            }
+
+            // O corpo do SE não pode estar vazio.
+            if (!blocoSE.getInputTargetBlock("DO")) {
+                throw new Error(
+                    "Existe um bloco SE sem instruções dentro do FAÇA!"
+                );
+            }
+
+            // Não permitir condicionais aninhadas.
+            const primeiroDO =
+                blocoSE.getInputTargetBlock("DO");
+
+            const primeiroELSE =
+                blocoSE.getInputTargetBlock("ELSE");
+
+            function verificarAninhamento(primeiro) {
+
+                let atual = primeiro;
+
+                while (atual) {
+
+                    if (atual.type === "ziblocks_se") {
+                        return true;
+                    }
+
+                    atual = atual.getNextBlock();
+
+                }
+
+                return false;
+
+            }
+
+            if (
+                verificarAninhamento(primeiroDO) ||
+                verificarAninhamento(primeiroELSE)
+            ) {
+                throw new Error(
+                    "Não é permitido colocar um SE dentro de outro SE!"
+                );
+            }
+
+        }
+
+        // Se existem IFs, saídas só podem utilizar D7 a D13.
+        if (blocosSE.length > 0) {
+
+            const saidasInvalidas = blocosDentro.some(function(bloco) {
+
+                if (bloco.type !== "ziblocks_pino_digital") {
+                    return false;
+                }
+
+                const pino = Number(
+                    bloco.getFieldValue("PINO")
+                );
+
+                return pino < 7 || pino > 13;
+
+            });
+
+            if (saidasInvalidas) {
+                throw new Error(
+                    "Quando existem condições SE, as saídas devem utilizar D7 a D13!"
+                );
+            }
+
+        }
+
+        // Não permitir programa composto apenas por esperas.
+        const somenteBlocosTempo = blocosDentro.every(function(bloco) {
+            return bloco.type === "ziblocks_aguardar";
+        });
+
+        if (somenteBlocosTempo) {
+            throw new Error(
+                "Não é possível carregar só blocos de Tempo!"
+            );
+        }
+
+        // Gerar os grupos a partir do bloco principal.
+        const primeiroBloco =
+            blocoSempre.getInputTargetBlock("DO");
+
+        return codificarSequencia(primeiroBloco);
+
+    }
+
+
+    // =====================================================
+    // EXIBIÇÃO DA SEQUÊNCIA BINÁRIA
+    // =====================================================
+
+    function mostrarSequenciaBinaria(grupos) {
+
+        // Remove janela anterior, caso exista.
+        const janelaAnterior = document.querySelector(
+            ".ziblocksBinaryOverlay"
+        );
+
+        if (janelaAnterior) {
+            janelaAnterior.remove();
+        }
+
+        const overlay = document.createElement("div");
+        overlay.className = "ziblocksBinaryOverlay";
+
+        const janela = document.createElement("div");
+        janela.className = "ziblocksBinaryWindow";
+
+        const titulo = document.createElement("h2");
+        titulo.className = "ziblocksBinaryTitle";
+        titulo.textContent = "Sequência gerada";
+
+        const descricao = document.createElement("p");
+        descricao.className = "ziblocksBinaryDescription";
+        descricao.textContent =
+            "Confira os grupos binários gerados a partir do seu programa.";
+
+        const campo = document.createElement("textarea");
+        campo.className = "ziblocksBinaryText";
+        campo.readOnly = true;
+        campo.value = grupos.join(" ");
+
+        const botoes = document.createElement("div");
+        botoes.className = "ziblocksBinaryButtons";
+
+        const botaoCopiar = document.createElement("button");
+        botaoCopiar.className =
+            "ziblocksBinaryButton ziblocksBinaryCopy";
+        botaoCopiar.textContent = "Copiar";
+
+        const botaoFechar = document.createElement("button");
+        botaoFechar.className =
+            "ziblocksBinaryButton ziblocksBinaryClose";
+        botaoFechar.textContent = "Fechar";
+
+        botaoCopiar.addEventListener("click", async function() {
+
+            try {
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+
+                    await navigator.clipboard.writeText(campo.value);
+
+                } else {
+
+                    campo.focus();
+                    campo.select();
+
+                    const copiou = document.execCommand("copy");
+
+                    if (!copiou) {
+                        throw new Error("Não foi possível copiar.");
+                    }
+
+                }
+
+                botaoCopiar.textContent = "Copiado!";
+
+                setTimeout(function() {
+                    botaoCopiar.textContent = "Copiar";
+                }, 1500);
+
+            } catch (erro) {
+
+                campo.focus();
+                campo.select();
+
+                mostrarAviso(
+                    "Selecione e copie a sequência manualmente."
+                );
+
+            }
+
+        });
+
+        botaoFechar.addEventListener("click", function() {
+            overlay.remove();
+        });
+
+        overlay.addEventListener("click", function(event) {
+
+            if (event.target === overlay) {
+                overlay.remove();
+            }
+
+        });
+
+        botoes.appendChild(botaoCopiar);
+        botoes.appendChild(botaoFechar);
+
+        janela.appendChild(titulo);
+        janela.appendChild(descricao);
+        janela.appendChild(campo);
+        janela.appendChild(botoes);
+
+        overlay.appendChild(janela);
+
+        document.body.appendChild(overlay);
+
+        campo.focus();
+        campo.select();
+
+    }
+
+
+    // =====================================================
     // CRIAÇÃO DOS BOTÕES DA TOOLBOX
     // =====================================================
 
@@ -864,9 +1377,7 @@
             return;
         }
 
-        // Cria o rodapé.
         const rodape = document.createElement("div");
-
         rodape.className = "ziblocksToolboxActions";
 
 
@@ -898,108 +1409,62 @@
         `;
 
 
-        // =================================================
-        // CONTROLE DE HABILITAÇÃO DOS BOTÕES
-        // =================================================
-
         // Carregar começa desabilitado.
         botaoCarregar.disabled = true;
 
-        // Conectar habilita Carregar.
+
+        // =================================================
+        // CONECTAR
+        // =================================================
+
         botaoConectar.addEventListener("click", function() {
 
             botaoCarregar.disabled = false;
 
         });
 
-        // Carregar verifica o programa antes de permitir
-        // o envio dos dados para a placa.
+
+        // =================================================
+        // CARREGAR
+        // =================================================
+
         botaoCarregar.addEventListener("click", function(event) {
 
-            const blocos = workspace.getAllBlocks(false);
+            event.preventDefault();
+            event.stopPropagation();
 
-            // Obtém os blocos que pertencem ao Sempre / Faça.
-            const blocosDentro = blocos.filter(function(bloco) {
+            try {
 
-                return bloco !== blocoSempre &&
-                       bloco.getRootBlock() === blocoSempre;
+                const grupos = gerarSequenciaPrograma();
 
-            });
-
-
-            // =================================================
-            // REGRA 1: BLOCO PRINCIPAL VAZIO
-            // =================================================
-
-            if (blocosDentro.length === 0) {
-
-                mostrarAviso(
-                    "Não há blocos dentro do bloco Principal!"
+                console.log(
+                    "Grupos binários gerados:",
+                    grupos
                 );
 
-                event.preventDefault();
-                event.stopImmediatePropagation();
-
-                return;
-
-            }
-
-
-            // =================================================
-            // REGRA 2: SOMENTE BLOCOS DE TEMPO
-            // =================================================
-
-            const somenteBlocosTempo = blocosDentro.every(function(bloco) {
-
-                return bloco.type === "ziblocks_aguardar";
-
-            });
-
-            if (somenteBlocosTempo) {
-
-                mostrarAviso(
-                    "Não é possível carregar só blocos de Tempo!"
+                console.log(
+                    "Sequência binária:",
+                    grupos.join(" ")
                 );
 
-                event.preventDefault();
-                event.stopImmediatePropagation();
+                mostrarSequenciaBinaria(grupos);
 
-                return;
+                // Carregar volta a ficar desabilitado.
+                // Para gerar novamente, é necessário
+                // pressionar Conectar antes.
 
-            }
+                botaoCarregar.disabled = true;
 
+            } catch (erro) {
 
-            // =================================================
-            // REGRA 3: BLOCOS FORA DO SEMPRE / FAÇA
-            // =================================================
+                mostrarAviso(erro.message);
 
-            const existemBlocosFora = blocos.some(function(bloco) {
-
-                return bloco !== blocoSempre &&
-                       bloco.getRootBlock() !== blocoSempre;
-
-            });
-
-            if (existemBlocosFora) {
-
-                mostrarAviso(
-                    "Existem blocos fora do Bloco Principal"
+                console.error(
+                    "Erro ao gerar sequência:",
+                    erro
                 );
 
-                event.preventDefault();
-                event.stopImmediatePropagation();
-
-                return;
-
             }
-
-
-            // =================================================
-            // REGRA 4: CARREGAMENTO VÁLIDO
-            // =================================================
-
-            // Desabilita Carregar até Conectar ser pressionado novamente.
-            botaoCarregar.disabled = true;
 
         });
 
@@ -1015,8 +1480,6 @@
             event.stopPropagation();
         });
 
-
-        // Adiciona os dois botões ao rodapé.
 
         rodape.appendChild(botaoConectar);
         rodape.appendChild(botaoCarregar);

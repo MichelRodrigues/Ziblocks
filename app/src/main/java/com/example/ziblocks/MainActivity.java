@@ -1,3 +1,4 @@
+
 package com.example.ziblocks;
 
 import android.annotation.SuppressLint;
@@ -8,6 +9,7 @@ import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceError;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebResourceResponse;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.OnBackPressedCallback;
 import androidx.webkit.WebViewAssetLoader;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,6 +67,28 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton btnToolbox = findViewById(R.id.btnToolbox);
 
+        // Configura o botão voltar usando a API AndroidX.
+        getOnBackPressedDispatcher().addCallback(this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+
+                        if (webView.canGoBack()) {
+
+                            webView.goBack();
+
+                        } else {
+
+                            // Desativa este callback para permitir
+                            // que o Android feche a Activity normalmente.
+                            setEnabled(false);
+                            getOnBackPressedDispatcher().onBackPressed();
+
+                        }
+
+                    }
+                });
+
         // Configura o carregamento dos arquivos locais por HTTPS.
         WebViewAssetLoader assetLoader =
                 new WebViewAssetLoader.Builder()
@@ -89,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
-            public android.webkit.WebResourceResponse shouldInterceptRequest(
+            public WebResourceResponse shouldInterceptRequest(
                     WebView view,
                     WebResourceRequest request) {
 
@@ -161,21 +186,6 @@ public class MainActivity extends AppCompatActivity {
         webView.loadUrl(
                 "https://appassets.androidplatform.net/assets/blockly.html"
         );
-
-    }
-
-    @Override
-    public void onBackPressed() {
-
-        if (webView.canGoBack()) {
-
-            webView.goBack();
-
-        } else {
-
-            super.onBackPressed();
-
-        }
 
     }
 
