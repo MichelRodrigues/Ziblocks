@@ -18,6 +18,7 @@
             android:layout_height="72dp"
             android:background="#F2FB94">
 
+            <!-- Botão da toolbox -->
             <ImageButton
                 android:id="@+id/btnToolbox"
                 android:layout_width="48dp"
@@ -30,13 +31,28 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_puzzle1" />
 
+            <!-- Logo central -->
             <ImageView
                 android:id="@+id/logo"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_centerInParent="true"
-                android:src="@drawable/ziblocks"
+                android:src="@drawable/logo_ziblocks"
                 android:adjustViewBounds="true" />
+
+            <!-- Botão do menu -->
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="12dp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/bg_menu_button"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_menu"
+                android:contentDescription="Menu de opções" />
 
         </RelativeLayout>
 

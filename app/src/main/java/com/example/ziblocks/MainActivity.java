@@ -5,12 +5,17 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -20,9 +25,10 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceResponse;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.OnBackPressedCallback;
@@ -126,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         splashOverlay = findViewById(R.id.splashOverlay);
 
         ImageButton btnToolbox = findViewById(R.id.btnToolbox);
+        ImageButton btnMenu = findViewById(R.id.btnMenu);
 
         // Gerenciador da câmera.
 
@@ -329,11 +336,73 @@ public class MainActivity extends AppCompatActivity {
 
 
         // =================================================
+        // BOTÃO ANDROID DO MENU
+        // =================================================
+
+        btnMenu.setOnClickListener(v -> abrirMenu(v));
+
+
+        // =================================================
         // CARREGAMENTO DO BLOCKLY
         // =================================================
 
         webView.loadUrl(
                 "https://appassets.androidplatform.net/assets/blockly.html"
+        );
+
+    }
+
+
+    // =====================================================
+    // MENU DE OPÇÕES
+    // =====================================================
+
+    private void abrirMenu(View ancora) {
+
+        // Monta o conteúdo visual do menu.
+        View menuView = LayoutInflater.from(this)
+                .inflate(R.layout.menu_popup, null);
+
+        // Largura da janela: 190dp.
+        int larguraMenu = (int) (
+                160 * getResources().getDisplayMetrics().density
+        );
+
+        // Cria a janela flutuante.
+        PopupWindow popup = new PopupWindow(
+                menuView,
+                larguraMenu,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+        );
+
+        popup.setBackgroundDrawable(
+                new ColorDrawable(android.graphics.Color.TRANSPARENT)
+        );
+
+        popup.setOutsideTouchable(true);
+        popup.setElevation(8f);
+
+        // Identifica as opções.
+        TextView abrir = menuView.findViewById(R.id.menuAbrir);
+        TextView salvar = menuView.findViewById(R.id.menuSalvar);
+        TextView sobre = menuView.findViewById(R.id.menuSobre);
+
+        // Por enquanto, apenas fecha o menu.
+        // As funcionalidades serão implementadas posteriormente.
+
+        abrir.setOnClickListener(v -> popup.dismiss());
+
+        salvar.setOnClickListener(v -> popup.dismiss());
+
+        sobre.setOnClickListener(v -> popup.dismiss());
+
+        // Exibe o menu alinhado à direita do botão.
+        popup.showAsDropDown(
+                ancora,
+                0,
+                4,
+                Gravity.END
         );
 
     }

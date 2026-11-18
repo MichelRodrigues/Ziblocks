@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,7 +13,12 @@
     <script src="blockly/msg/en.js"></script>
 
     <style>
-        html, body {
+        /* =====================================================
+           ESTRUTURA GERAL
+           ===================================================== */
+
+        html,
+        body {
             height: 100%;
             width: 100%;
             margin: 0;
@@ -27,7 +31,7 @@
         }
 
         .blocklyToolbox {
-            transition: transform .25s ease;
+            transition: transform 0.25s ease;
             transform: translateX(0);
         }
 
@@ -35,92 +39,18 @@
             transform: translateX(-100%);
         }
 
+
         /* =====================================================
-           ESTILO DAS CATEGORIAS DA TOOLBOX
+           CATEGORIAS DA TOOLBOX
            ===================================================== */
 
-        .blocklyTreeRoot {
-            padding: 28px 5px 100px !important;
-        }
-
-        .blocklyTreeRow {
-            height: 52px !important;
-            line-height: 52px !important;
-            margin: 8px 6px !important;
-            padding: 0 12px !important;
-            border-radius: 12px !important;
-            box-sizing: border-box;
-
-            box-shadow:
-                inset 0 2px 2px rgba(255,255,255,0.25),
-                0 5px 0 rgba(0,0,0,0.25);
-
-            transition:
-                transform 0.12s ease,
-                box-shadow 0.12s ease,
-                filter 0.12s ease;
-        }
-
-        /* SAÍDAS - AZUL */
-        .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(1) {
-            background: linear-gradient(
-                180deg,
-                #4D9AE8,
-                #2164A8
-            ) !important;
-        }
-
-        /* TEMPO - ROXO */
-        .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(2) {
-            background: linear-gradient(
-                180deg,
-                #AC75E8,
-                #7540B5
-            ) !important;
-        }
-
-        /* CONDIÇÕES - VERDE */
-        .blocklyTreeRoot > .blocklyTreeRow:nth-of-type(3) {
-            background: linear-gradient(
-                180deg,
-                #65C77D,
-                #298449
-            ) !important;
-        }
-
-        /* TEXTO DAS CATEGORIAS */
+        .blocklyToolboxCategory,
+        .blocklyToolboxCategoryLabel,
         .blocklyTreeLabel {
-            color: #FFFFFF !important;
-            font-size: 28px !important;
-            font-weight: bold !important;
+            font-size: 17px !important;
+            font-family: Arial, sans-serif !important;
         }
 
-        .blocklyTreeRow:hover {
-            filter: brightness(1.12);
-            transform: translateY(-1px);
-
-            box-shadow:
-                inset 0 2px 2px rgba(255,255,255,0.3),
-                0 6px 0 rgba(0,0,0,0.25);
-        }
-
-        .blocklyTreeRow.blocklyTreeSelected {
-            filter: brightness(1.15);
-
-            box-shadow:
-                inset 0 2px 3px rgba(0,0,0,0.15),
-                0 2px 0 rgba(0,0,0,0.3);
-
-            transform: translateY(3px);
-        }
-
-        .blocklyTreeRow:active {
-            transform: translateY(4px);
-
-            box-shadow:
-                inset 0 3px 5px rgba(0,0,0,0.2),
-                0 1px 0 rgba(0,0,0,0.2);
-        }
 
         /* =====================================================
            BOTÕES DA TOOLBOX
@@ -140,15 +70,15 @@
             box-sizing: border-box;
 
             background: transparent;
-            border-top: 1px solid rgba(255,255,255,0.10);
+            border-top: 1px solid rgba(255, 255, 255, 0.10);
 
             z-index: 1000;
         }
 
         .ziblocksActionButton {
             width: 90%;
-            height: 32px;
-            min-height: 32px;
+            height: 42px;
+            min-height: 42px;
             margin: 0 auto;
 
             border: none;
@@ -161,12 +91,12 @@
 
             color: white;
             font-family: Arial, sans-serif;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
 
             cursor: pointer;
 
-            box-shadow: 0 2px 3px rgba(0,0,0,0.18);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.18);
 
             transition:
                 filter 0.12s ease,
@@ -203,6 +133,7 @@
             filter: brightness(1.08);
         }
 
+
         /* =====================================================
            JANELA DA SEQUÊNCIA BINÁRIA
            ===================================================== */
@@ -218,7 +149,7 @@
             padding: 20px;
             box-sizing: border-box;
 
-            background: rgba(0,0,0,0.65);
+            background: rgba(0, 0, 0, 0.65);
             z-index: 10000;
         }
 
@@ -232,7 +163,7 @@
             padding: 20px;
             box-sizing: border-box;
 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 
             font-family: Arial, sans-serif;
         }
@@ -305,7 +236,6 @@
         .ziblocksBinaryButton:active {
             filter: brightness(0.9);
         }
-
     </style>
 </head>
 
@@ -313,7 +243,10 @@
 
 <div id="blocklyDiv"></div>
 
-<!-- TOOLBOX -->
+<!-- =====================================================
+     TOOLBOX
+     ===================================================== -->
+
 <xml id="toolbox" style="display: none">
 
     <category name="💡Saídas" colour="210">
@@ -329,6 +262,7 @@
     </category>
 
 </xml>
+
 
 <script>
 
@@ -401,7 +335,6 @@
         if (botaoCarregarToolbox) {
             botaoCarregarToolbox.disabled = true;
         }
-
     }
 
 
@@ -420,7 +353,6 @@
             if (botaoCarregarToolbox) {
                 botaoCarregarToolbox.disabled = false;
             }
-
         }
 
         if (acao === "carregar") {
@@ -432,9 +364,7 @@
             if (botaoCarregarToolbox) {
                 botaoCarregarToolbox.disabled = true;
             }
-
         }
-
     }
 
 
@@ -450,14 +380,12 @@
         }
 
         if (botaoCarregarToolbox) {
-            botaoCarregarToolbox.disabled =
-                acao === "carregar";
+            botaoCarregarToolbox.disabled = acao === "carregar";
         }
 
         if (mensagem) {
             mostrarAviso(mensagem);
         }
-
     }
 
 
@@ -476,7 +404,6 @@
         return blocos.some(function(bloco) {
             return bloco.type === "ziblocks_se";
         });
-
     }
 
 
@@ -504,11 +431,9 @@
             if (pino) {
                 reservados.add(String(pino));
             }
-
         });
 
         return reservados;
-
     }
 
 
@@ -523,7 +448,6 @@
         }
 
         return PINOS_DIGITAIS;
-
     }
 
 
@@ -543,7 +467,6 @@
 
             return !reservados.has(opcao[1]) ||
                 opcao[1] === pinoAtual;
-
         });
 
         if (opcoes.length === 0) {
@@ -553,7 +476,6 @@
         }
 
         return opcoes;
-
     }
 
 
@@ -580,9 +502,7 @@
             );
 
             return ["3", "4", "5", "6"].includes(pino);
-
         });
-
     }
 
 
@@ -597,7 +517,6 @@
         } else {
             alert(mensagem);
         }
-
     }
 
 
@@ -605,7 +524,7 @@
     // MUTATOR: OPÇÃO SENÃO
     // =====================================================
 
-    Blockly.Blocks['ziblocks_se_mutator_container'] = {
+    Blockly.Blocks["ziblocks_se_mutator_container"] = {
 
         init: function() {
 
@@ -616,13 +535,11 @@
 
             this.setColour(120);
             this.contextMenu = false;
-
         }
-
     };
 
 
-    Blockly.Blocks['ziblocks_se_mutator_senao'] = {
+    Blockly.Blocks["ziblocks_se_mutator_senao"] = {
 
         init: function() {
 
@@ -634,9 +551,7 @@
 
             this.setColour(120);
             this.contextMenu = false;
-
         }
-
     };
 
 
@@ -644,7 +559,7 @@
     // BLOCO PRINCIPAL: SEMPRE / FAÇA
     // =====================================================
 
-    Blockly.Blocks['ziblocks_sempre'] = {
+    Blockly.Blocks["ziblocks_sempre"] = {
 
         init: function() {
 
@@ -662,9 +577,7 @@
 
             this.setDeletable(false);
             this.setMovable(true);
-
         }
-
     };
 
 
@@ -672,7 +585,7 @@
     // BLOCO: DEFINIR PINO DIGITAL
     // =====================================================
 
-    Blockly.Blocks['ziblocks_pino_digital'] = {
+    Blockly.Blocks["ziblocks_pino_digital"] = {
 
         init: function() {
 
@@ -701,9 +614,7 @@
             this.setTooltip(
                 "Define o estado de uma saída digital."
             );
-
         }
-
     };
 
 
@@ -711,7 +622,7 @@
     // BLOCO: AGUARDAR
     // =====================================================
 
-    Blockly.Blocks['ziblocks_aguardar'] = {
+    Blockly.Blocks["ziblocks_aguardar"] = {
 
         init: function() {
 
@@ -740,9 +651,7 @@
             this.setTooltip(
                 "Aguarda o tempo selecionado antes de executar a próxima instrução."
             );
-
         }
-
     };
 
 
@@ -750,7 +659,7 @@
     // BLOCO: SE
     // =====================================================
 
-    Blockly.Blocks['ziblocks_se'] = {
+    Blockly.Blocks["ziblocks_se"] = {
 
         init: function() {
 
@@ -789,7 +698,7 @@
 
             this.setMutator(
                 new Blockly.icons.MutatorIcon(
-                    ['ziblocks_se_mutator_senao'],
+                    ["ziblocks_se_mutator_senao"],
                     this
                 )
             );
@@ -819,7 +728,7 @@
 
                 if (
                     paiEstrutural &&
-                    paiEstrutural.type === 'ziblocks_se'
+                    paiEstrutural.type === "ziblocks_se"
                 ) {
                     bloco.unplug(true);
                     return;
@@ -829,7 +738,7 @@
 
                 const raiz = bloco.getRootBlock();
 
-                if (raiz.type !== 'ziblocks_sempre') return;
+                if (raiz.type !== "ziblocks_sempre") return;
 
                 const todosBlocos = bloco.workspace.getAllBlocks(false);
 
@@ -837,12 +746,11 @@
 
                 for (const b of todosBlocos) {
 
-                    if (b.type !== 'ziblocks_se') continue;
+                    if (b.type !== "ziblocks_se") continue;
 
                     if (b.getRootBlock() === raiz) {
                         quantidadeSE++;
                     }
-
                 }
 
                 if (quantidadeSE > 4) {
@@ -854,7 +762,6 @@
                     );
 
                     return;
-
                 }
 
                 // Impedir IF se já houver saída utilizando D3 a D6.
@@ -868,83 +775,74 @@
                     );
 
                     return;
-
                 }
-
             });
-
         },
 
 
         mutationToDom: function() {
 
-            var container = document.createElement('mutation');
+            var container = document.createElement("mutation");
 
             if (this.hasElse_) {
-                container.setAttribute('else', '1');
+                container.setAttribute("else", "1");
             }
 
             return container;
-
         },
 
 
         domToMutation: function(xmlElement) {
 
             this.hasElse_ =
-                xmlElement.getAttribute('else') === '1';
+                xmlElement.getAttribute("else") === "1";
 
             this.updateShape_();
-
         },
 
 
         decompose: function(workspace) {
 
             var containerBlock =
-                workspace.newBlock('ziblocks_se_mutator_container');
+                workspace.newBlock("ziblocks_se_mutator_container");
 
             containerBlock.initSvg();
 
             var connection =
-                containerBlock.getInput('STACK').connection;
+                containerBlock.getInput("STACK").connection;
 
             if (this.hasElse_) {
 
                 var elseBlock =
-                    workspace.newBlock('ziblocks_se_mutator_senao');
+                    workspace.newBlock("ziblocks_se_mutator_senao");
 
                 elseBlock.initSvg();
 
                 connection.connect(elseBlock.previousConnection);
-
             }
 
             return containerBlock;
-
         },
 
 
         compose: function(containerBlock) {
 
             var itemBlock =
-                containerBlock.getInputTargetBlock('STACK');
+                containerBlock.getInputTargetBlock("STACK");
 
             this.hasElse_ = false;
 
             while (itemBlock) {
 
-                if (itemBlock.type === 'ziblocks_se_mutator_senao') {
+                if (itemBlock.type === "ziblocks_se_mutator_senao") {
                     this.hasElse_ = true;
                 }
 
                 itemBlock = itemBlock.nextConnection &&
                     itemBlock.nextConnection.targetBlock();
-
             }
 
             this.updateShape_();
-
         },
 
 
@@ -952,23 +850,19 @@
 
             if (this.hasElse_) {
 
-                if (!this.getInput('ELSE')) {
+                if (!this.getInput("ELSE")) {
 
-                    this.appendStatementInput('ELSE')
-                        .appendField('senão');
-
+                    this.appendStatementInput("ELSE")
+                        .appendField("senão");
                 }
 
             } else {
 
-                if (this.getInput('ELSE')) {
-                    this.removeInput('ELSE');
+                if (this.getInput("ELSE")) {
+                    this.removeInput("ELSE");
                 }
-
             }
-
         }
-
     };
 
 
@@ -976,11 +870,11 @@
     // INICIALIZAÇÃO DO BLOCKLY
     // =====================================================
 
-    var workspace = Blockly.inject('blocklyDiv', {
+    var workspace = Blockly.inject("blocklyDiv", {
 
-        toolbox: document.getElementById('toolbox'),
+        toolbox: document.getElementById("toolbox"),
 
-        media: 'blockly/media/',
+        media: "blockly/media/",
 
         zoom: {
             controls: false,
@@ -991,10 +885,12 @@
             minScale: 0.5,
             scaleSpeed: 1.2
         }
-
     });
 
-    // Impede que a toolbox apague blocos quando eles forem soltos sobre ela.
+
+    // Impede que a toolbox apague blocos quando eles
+    // forem soltos sobre ela.
+
     const toolbox = workspace.getToolbox();
 
     workspace.getComponentManager().removeCapability(
@@ -1028,7 +924,6 @@
         return Number(valor)
             .toString(2)
             .padStart(quantidadeBits, "0");
-
     }
 
 
@@ -1051,7 +946,6 @@
             const codigo = 2 * (pino - 3) + estado;
 
             return paraBinario(codigo, 5);
-
         }
 
 
@@ -1066,14 +960,12 @@
             }
 
             return codigo;
-
         }
 
 
         throw new Error(
             "Tipo de bloco não reconhecido: " + bloco.type
         );
-
     }
 
 
@@ -1094,7 +986,6 @@
         const codigo = 2 * (pino - 3) + estado;
 
         return paraBinario(codigo, 3);
-
     }
 
 
@@ -1115,6 +1006,7 @@
                 const condicao = codificarCondicao(bloco);
 
                 // Corpo do SE.
+
                 const primeiroDO =
                     bloco.getInputTargetBlock("DO");
 
@@ -1122,7 +1014,6 @@
                     codificarSequencia(primeiroDO);
 
                 grupos.push(condicao);
-
                 grupos.push(...gruposDO);
 
 
@@ -1146,25 +1037,22 @@
                         codificarSequencia(primeiroELSE);
 
                     grupos.push(...gruposELSE);
-
                 }
 
 
                 // Marcador final da condicional.
+
                 grupos.push("11");
 
             } else {
 
                 grupos.push(codificarBloco(bloco));
-
             }
 
             bloco = bloco.getNextBlock();
-
         }
 
         return grupos;
-
     }
 
 
@@ -1179,23 +1067,25 @@
         const blocosDentro = blocos.filter(function(bloco) {
 
             return bloco !== blocoSempre &&
-                   bloco.getRootBlock() === blocoSempre;
-
+                bloco.getRootBlock() === blocoSempre;
         });
 
+
         // Deve existir pelo menos uma instrução.
+
         if (blocosDentro.length === 0) {
             throw new Error(
                 "Não há blocos dentro do bloco Principal!"
             );
         }
 
+
         // Não permitir blocos fora do Sempre / Faça.
+
         const existemBlocosFora = blocos.some(function(bloco) {
 
             return bloco !== blocoSempre &&
-                   bloco.getRootBlock() !== blocoSempre;
-
+                bloco.getRootBlock() !== blocoSempre;
         });
 
         if (existemBlocosFora) {
@@ -1204,7 +1094,9 @@
             );
         }
 
+
         // Deve existir pelo menos uma saída digital.
+
         const existeSaida = blocosDentro.some(function(bloco) {
             return bloco.type === "ziblocks_pino_digital";
         });
@@ -1215,7 +1107,9 @@
             );
         }
 
+
         // Validar condicionais.
+
         const blocosSE = blocosDentro.filter(function(bloco) {
             return bloco.type === "ziblocks_se";
         });
@@ -1234,38 +1128,51 @@
                 blocoSE.getFieldValue("PINO")
             );
 
+
             // Não permitir repetir pino de entrada.
+
             if (pinosSE.has(pino)) {
                 throw new Error(
-                    "O pino D" + pino + " está sendo utilizado em mais de uma condição!"
+                    "O pino D" + pino +
+                    " está sendo utilizado em mais de uma condição!"
                 );
             }
 
             pinosSE.add(pino);
 
+
             // Somente D3 a D6 podem ser entradas.
+
             if (!["3", "4", "5", "6"].includes(pino)) {
                 throw new Error(
                     "As condições só podem utilizar os pinos D3 a D6!"
                 );
             }
 
+
             // O corpo do SE não pode estar vazio.
+
             if (!blocoSE.getInputTargetBlock("DO")) {
                 throw new Error(
                     "Existe um bloco SE sem instruções dentro do FAÇA!"
                 );
             }
-// O corpo do SENÃO não pode estar vazio.
-if (
-    blocoSE.hasElse_ &&
-    !blocoSE.getInputTargetBlock("ELSE")
-) {
-    throw new Error(
-        "Existe um bloco SE com SENÃO sem instruções!"
-    );
-}
+
+
+            // O corpo do SENÃO não pode estar vazio.
+
+            if (
+                blocoSE.hasElse_ &&
+                !blocoSE.getInputTargetBlock("ELSE")
+            ) {
+                throw new Error(
+                    "Existe um bloco SE com SENÃO sem instruções!"
+                );
+            }
+
+
             // Não permitir condicionais aninhadas.
+
             const primeiroDO =
                 blocoSE.getInputTargetBlock("DO");
 
@@ -1283,11 +1190,9 @@ if (
                     }
 
                     atual = atual.getNextBlock();
-
                 }
 
                 return false;
-
             }
 
             if (
@@ -1298,10 +1203,11 @@ if (
                     "Não é permitido colocar um SE dentro de outro SE!"
                 );
             }
-
         }
 
+
         // Se existem IFs, saídas só podem utilizar D7 a D13.
+
         if (blocosSE.length > 0) {
 
             const saidasInvalidas = blocosDentro.some(function(bloco) {
@@ -1315,7 +1221,6 @@ if (
                 );
 
                 return pino < 7 || pino > 13;
-
             });
 
             if (saidasInvalidas) {
@@ -1323,10 +1228,11 @@ if (
                     "Quando existem condições SE, as saídas devem utilizar D7 a D13!"
                 );
             }
-
         }
 
+
         // Não permitir programa composto apenas por esperas.
+
         const somenteBlocosTempo = blocosDentro.every(function(bloco) {
             return bloco.type === "ziblocks_aguardar";
         });
@@ -1337,12 +1243,13 @@ if (
             );
         }
 
+
         // Gerar os grupos a partir do bloco principal.
+
         const primeiroBloco =
             blocoSempre.getInputTargetBlock("DO");
 
         return codificarSequencia(primeiroBloco);
-
     }
 
 
@@ -1353,6 +1260,7 @@ if (
     function mostrarSequenciaBinaria(grupos) {
 
         // Remove janela anterior, caso exista.
+
         const janelaAnterior = document.querySelector(
             ".ziblocksBinaryOverlay"
         );
@@ -1360,6 +1268,7 @@ if (
         if (janelaAnterior) {
             janelaAnterior.remove();
         }
+
 
         const overlay = document.createElement("div");
         overlay.className = "ziblocksBinaryOverlay";
@@ -1384,21 +1293,24 @@ if (
         const botoes = document.createElement("div");
         botoes.className = "ziblocksBinaryButtons";
 
+
+        // BOTÃO COPIAR
+
         const botaoCopiar = document.createElement("button");
+
         botaoCopiar.className =
             "ziblocksBinaryButton ziblocksBinaryCopy";
-        botaoCopiar.textContent = "Copiar";
 
-        const botaoFechar = document.createElement("button");
-        botaoFechar.className =
-            "ziblocksBinaryButton ziblocksBinaryClose";
-        botaoFechar.textContent = "Fechar";
+        botaoCopiar.textContent = "Copiar";
 
         botaoCopiar.addEventListener("click", async function() {
 
             try {
 
-                if (navigator.clipboard && navigator.clipboard.writeText) {
+                if (
+                    navigator.clipboard &&
+                    navigator.clipboard.writeText
+                ) {
 
                     await navigator.clipboard.writeText(campo.value);
 
@@ -1412,7 +1324,6 @@ if (
                     if (!copiou) {
                         throw new Error("Não foi possível copiar.");
                     }
-
                 }
 
                 botaoCopiar.textContent = "Copiado!";
@@ -1429,22 +1340,35 @@ if (
                 mostrarAviso(
                     "Selecione e copie a sequência manualmente."
                 );
-
             }
-
         });
+
+
+        // BOTÃO FECHAR
+
+        const botaoFechar = document.createElement("button");
+
+        botaoFechar.className =
+            "ziblocksBinaryButton ziblocksBinaryClose";
+
+        botaoFechar.textContent = "Fechar";
 
         botaoFechar.addEventListener("click", function() {
             overlay.remove();
         });
+
+
+        // Fechar ao tocar fora da janela.
 
         overlay.addEventListener("click", function(event) {
 
             if (event.target === overlay) {
                 overlay.remove();
             }
-
         });
+
+
+        // Montagem da janela.
 
         botoes.appendChild(botaoCopiar);
         botoes.appendChild(botaoFechar);
@@ -1460,7 +1384,6 @@ if (
 
         campo.focus();
         campo.select();
-
     }
 
 
@@ -1489,6 +1412,7 @@ if (
         const botaoConectar = document.createElement("button");
 
         botaoConectar.type = "button";
+
         botaoConectar.className =
             "ziblocksActionButton ziblocksConnect";
 
@@ -1503,6 +1427,7 @@ if (
         const botaoCarregar = document.createElement("button");
 
         botaoCarregar.type = "button";
+
         botaoCarregar.className =
             "ziblocksActionButton ziblocksUpload";
 
@@ -1543,7 +1468,6 @@ if (
                 );
 
                 return;
-
             }
 
             // Conectar permanece sempre disponível.
@@ -1557,7 +1481,6 @@ if (
                 "00000000",
                 "conectar"
             );
-
         });
 
 
@@ -1582,7 +1505,6 @@ if (
                 );
 
                 return;
-
             }
 
             try {
@@ -1609,9 +1531,7 @@ if (
             } catch (erro) {
 
                 mostrarAviso(erro.message);
-
             }
-
         });
 
 
@@ -1627,15 +1547,17 @@ if (
         });
 
 
+        // Adiciona os botões ao rodapé.
+
         rodape.appendChild(botaoConectar);
         rodape.appendChild(botaoCarregar);
 
         toolbox.appendChild(rodape);
-
     }
 
 
     // Aguarda o Blockly montar sua interface.
+
     setTimeout(criarBotoesToolbox, 300);
 
 
@@ -1643,7 +1565,7 @@ if (
     // CRIAÇÃO AUTOMÁTICA DO SEMPRE / FAÇA
     // =====================================================
 
-    var blocoSempre = workspace.newBlock('ziblocks_sempre');
+    var blocoSempre = workspace.newBlock("ziblocks_sempre");
 
     blocoSempre.initSvg();
     blocoSempre.render();
@@ -1675,13 +1597,9 @@ if (
                     if (typeof icone.setBubbleVisible === "function") {
                         icone.setBubbleVisible(false);
                     }
-
                 }
-
             });
-
         });
-
     }
 
 
@@ -1696,7 +1614,6 @@ if (
         if (toolbox) {
             toolbox.classList.remove("toolboxHidden");
         }
-
     }
 
 
@@ -1709,11 +1626,11 @@ if (
         if (toolbox) {
             toolbox.classList.add("toolboxHidden");
         }
-
     }
 
 
     // Fecha a toolbox ao iniciar.
+
     setTimeout(function() {
         fecharToolbox();
     }, 300);
@@ -1728,7 +1645,6 @@ if (
         if (event.type === Blockly.Events.BLOCK_DRAG) {
             fecharToolbox();
         }
-
     });
 
 
@@ -1873,7 +1789,6 @@ if (
         } else {
             fecharToolbox();
         }
-
     }
 
 </script>
