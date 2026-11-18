@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -236,6 +237,282 @@
         .ziblocksBinaryButton:active {
             filter: brightness(0.9);
         }
+
+
+        /* =====================================================
+           JANELAS DE ARQUIVOS DO ZIBLOCKS
+           ===================================================== */
+
+        .ziblocksFileOverlay {
+            position: fixed;
+            inset: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+            box-sizing: border-box;
+
+            background: rgba(0, 0, 0, 0.55);
+
+            z-index: 20000;
+        }
+
+        .ziblocksFileWindow {
+            width: 100%;
+            max-width: 380px;
+
+            padding: 22px;
+            box-sizing: border-box;
+
+            background: #FFFFFF;
+            border-radius: 16px;
+
+            font-family: Arial, sans-serif;
+
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+        }
+
+        .ziblocksFileTitle {
+            margin: 0 0 18px;
+
+            color: #252A3D;
+            font-size: 21px;
+        }
+
+        .ziblocksFileLabel {
+            display: block;
+            margin-bottom: 8px;
+
+            color: #555;
+            font-size: 14px;
+        }
+
+        .ziblocksFileInput {
+            width: 100%;
+            height: 46px;
+
+            padding: 0 12px;
+            box-sizing: border-box;
+
+            border: 1px solid #C9CED9;
+            border-radius: 8px;
+
+            font-size: 16px;
+            outline: none;
+        }
+
+        .ziblocksFileInput:focus {
+            border-color: #75B832;
+        }
+
+        .ziblocksFileButtons {
+            display: flex;
+            gap: 10px;
+
+            margin-top: 20px;
+        }
+
+        .ziblocksFileButton {
+            flex: 1;
+            min-height: 44px;
+
+            border: none;
+            border-radius: 8px;
+
+            font-size: 15px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .ziblocksFileCancel {
+            background: #E8EAF0;
+            color: #333;
+        }
+
+        .ziblocksFileConfirm {
+            background: #75B832;
+            color: #17210A;
+        }
+
+
+        /* =====================================================
+           PAINEL LATERAL DE PROGRAMAS
+           ===================================================== */
+
+        .ziblocksProgramsPanel {
+            position: fixed;
+
+            top: 0;
+            right: 0;
+
+            width: min(85vw, 360px);
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            background: #FFFFFF;
+
+            box-shadow: -5px 0 25px rgba(0,0,0,0.25);
+
+            z-index: 20000;
+
+            font-family: Arial, sans-serif;
+
+            transform: translateX(110%);
+            transition: transform 0.25s ease;
+        }
+
+        .ziblocksProgramsPanel.open {
+            transform: translateX(0);
+        }
+
+        .ziblocksProgramsHeader {
+            min-height: 64px;
+
+            padding: 0 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #F2FB94;
+        }
+
+        .ziblocksProgramsHeader h2 {
+            margin: 0;
+
+            color: #20243A;
+            font-size: 19px;
+        }
+
+        .ziblocksProgramsClose {
+            border: none;
+            background: transparent;
+
+            font-size: 28px;
+            color: #333;
+
+            cursor: pointer;
+        }
+
+        .ziblocksProgramsList {
+            flex: 1;
+
+            padding: 10px;
+
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        .ziblocksProgramItem {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 12px 10px;
+            margin-bottom: 7px;
+
+            border: 1px solid #E2E5EC;
+            border-radius: 9px;
+
+            background: #FFFFFF;
+
+            cursor: pointer;
+        }
+
+        .ziblocksProgramItem.selected {
+            border: 2px solid #75B832;
+            background: #F5FBEF;
+        }
+
+        .ziblocksProgramName {
+            flex: 1;
+            min-width: 0;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            color: #252A3D;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .ziblocksProgramShare {
+            width: 38px;
+            height: 38px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 0;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #EEF0F5;
+
+            color: #333;
+
+            cursor: pointer;
+        }
+
+        .ziblocksProgramShare svg {
+            display: block;
+        }
+
+        .ziblocksProgramShare:active {
+            filter: brightness(0.9);
+        }
+
+        .ziblocksProgramDelete {
+            background: #FCEBEC;
+            color: #C62828;
+        }
+
+        .ziblocksProgramsFooter {
+            padding: 12px;
+
+            border-top: 1px solid #E5E5E5;
+        }
+
+        .ziblocksProgramsOpen {
+            width: 100%;
+            height: 46px;
+
+            border: none;
+            border-radius: 9px;
+
+            background: #75B832;
+            color: #17210A;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .ziblocksProgramsOpen:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .ziblocksProgramsEmpty {
+            padding: 35px 15px;
+
+            color: #777;
+            font-size: 15px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
     </style>
 </head>
 
@@ -518,6 +795,569 @@
             alert(mensagem);
         }
     }
+
+
+    /* =====================================================
+       GERENCIADOR DE PROGRAMAS
+       ===================================================== */
+
+    let painelProgramas = null;
+
+    let programasDisponiveis = [];
+
+    let programaSelecionado = null;
+
+    let janelaSalvarCodigo = null;
+
+
+    // =====================================================
+    // ABRIR JANELA SALVAR
+    // =====================================================
+
+    function abrirJanelaSalvar() {
+
+        if (janelaSalvarCodigo) {
+            janelaSalvarCodigo.remove();
+        }
+
+        const overlay = document.createElement("div");
+
+        overlay.className = "ziblocksFileOverlay";
+
+        const janela = document.createElement("div");
+
+        janela.className = "ziblocksFileWindow";
+
+        const titulo = document.createElement("h2");
+
+        titulo.className = "ziblocksFileTitle";
+        titulo.textContent = "Salvar programa";
+
+        const label = document.createElement("label");
+
+        label.className = "ziblocksFileLabel";
+        label.textContent = "Nome do programa";
+
+        const input = document.createElement("input");
+
+        input.className = "ziblocksFileInput";
+        input.type = "text";
+        input.maxLength = 50;
+        input.placeholder = "Digite um nome";
+
+        const botoes = document.createElement("div");
+
+        botoes.className = "ziblocksFileButtons";
+
+        const cancelar = document.createElement("button");
+
+        cancelar.className =
+            "ziblocksFileButton ziblocksFileCancel";
+
+        cancelar.textContent = "Cancelar";
+
+        cancelar.onclick = fecharJanelaSalvar;
+
+        const salvar = document.createElement("button");
+
+        salvar.className =
+            "ziblocksFileButton ziblocksFileConfirm";
+
+        salvar.textContent = "Salvar";
+
+        salvar.onclick = function() {
+
+            const nome = input.value.trim();
+
+            if (!nome) {
+
+                mostrarAviso("Digite um nome para o programa.");
+
+                input.focus();
+
+                return;
+            }
+
+            if (
+                !window.AndroidBridge ||
+                typeof AndroidBridge.salvarPrograma !== "function"
+            ) {
+
+                mostrarAviso("Não foi possível acessar o armazenamento.");
+
+                return;
+            }
+
+            try {
+
+                const dom = Blockly.Xml.workspaceToDom(workspace);
+
+                const conteudo = Blockly.Xml.domToText(dom);
+
+                salvar.disabled = true;
+
+                AndroidBridge.salvarPrograma(
+                    nome,
+                    conteudo
+                );
+
+            } catch (erro) {
+
+                salvar.disabled = false;
+
+                mostrarAviso(
+                    "Não foi possível preparar o programa para salvar."
+                );
+
+                console.error(erro);
+
+            }
+
+        };
+
+        botoes.appendChild(cancelar);
+        botoes.appendChild(salvar);
+
+        janela.appendChild(titulo);
+        janela.appendChild(label);
+        janela.appendChild(input);
+        janela.appendChild(botoes);
+
+        overlay.appendChild(janela);
+
+        document.body.appendChild(overlay);
+
+        janelaSalvarCodigo = overlay;
+
+        overlay.addEventListener("click", function(event) {
+
+            if (event.target === overlay) {
+                fecharJanelaSalvar();
+            }
+
+        });
+
+        input.focus();
+
+    }
+
+
+    // =====================================================
+    // FECHAR JANELA SALVAR
+    // =====================================================
+
+    function fecharJanelaSalvar() {
+
+        if (janelaSalvarCodigo) {
+
+            janelaSalvarCodigo.remove();
+
+            janelaSalvarCodigo = null;
+
+        }
+
+    }
+
+
+    // =====================================================
+    // RETORNO DO ANDROID APÓS SALVAR
+    // =====================================================
+
+    function ziblocksSalvamentoResultado(sucesso, mensagem) {
+
+        if (sucesso) {
+
+            fecharJanelaSalvar();
+
+            mostrarAviso(mensagem);
+
+            if (painelProgramas) {
+                AndroidBridge.listarProgramas();
+            }
+
+        } else {
+
+            mostrarAviso(mensagem);
+
+            const botao = janelaSalvarCodigo?.querySelector(
+                ".ziblocksFileConfirm"
+            );
+
+            if (botao) {
+                botao.disabled = false;
+            }
+
+        }
+
+    }
+
+
+    // =====================================================
+    // ABRIR PAINEL DE PROGRAMAS
+    // =====================================================
+
+    function abrirListaProgramas() {
+
+        fecharPainelProgramas();
+
+        const painel = document.createElement("div");
+
+        painel.className = "ziblocksProgramsPanel";
+
+        const cabecalho = document.createElement("div");
+
+        cabecalho.className = "ziblocksProgramsHeader";
+
+        const titulo = document.createElement("h2");
+
+        titulo.textContent = "Meus programas";
+
+        const fechar = document.createElement("button");
+
+        fechar.className = "ziblocksProgramsClose";
+        fechar.textContent = "×";
+
+        fechar.onclick = fecharPainelProgramas;
+
+        cabecalho.appendChild(titulo);
+        cabecalho.appendChild(fechar);
+
+        const lista = document.createElement("div");
+
+        lista.className = "ziblocksProgramsList";
+
+        lista.innerHTML = `
+            <div class="ziblocksProgramsEmpty">
+                Carregando programas...
+            </div>
+        `;
+
+        const rodape = document.createElement("div");
+
+        rodape.className = "ziblocksProgramsFooter";
+
+        const botaoAbrir = document.createElement("button");
+
+        botaoAbrir.className = "ziblocksProgramsOpen";
+
+        botaoAbrir.textContent = "Abrir programa";
+
+        botaoAbrir.disabled = true;
+
+        botaoAbrir.onclick = abrirProgramaSelecionado;
+
+        rodape.appendChild(botaoAbrir);
+
+        painel.appendChild(cabecalho);
+        painel.appendChild(lista);
+        painel.appendChild(rodape);
+
+        document.body.appendChild(painel);
+
+        painelProgramas = painel;
+
+        setTimeout(function() {
+            painel.classList.add("open");
+        }, 10);
+
+        if (
+            window.AndroidBridge &&
+            typeof AndroidBridge.listarProgramas === "function"
+        ) {
+
+            AndroidBridge.listarProgramas();
+
+        } else {
+
+            lista.innerHTML = `
+                <div class="ziblocksProgramsEmpty">
+                    Não foi possível acessar os programas.
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    // =====================================================
+    // FECHAR PAINEL
+    // =====================================================
+
+    function fecharPainelProgramas() {
+
+        if (painelProgramas) {
+
+            painelProgramas.remove();
+
+            painelProgramas = null;
+
+        }
+
+        programasDisponiveis = [];
+
+        programaSelecionado = null;
+
+    }
+
+
+    // =====================================================
+    // RECEBER LISTA DO ANDROID
+    // =====================================================
+
+    function ziblocksListaProgramas(programas) {
+
+        programasDisponiveis = Array.isArray(programas)
+            ? programas
+            : [];
+
+        renderizarListaProgramas();
+
+    }
+
+
+    // =====================================================
+    // DESENHAR LISTA DE PROGRAMAS
+    // =====================================================
+
+    function renderizarListaProgramas() {
+
+        if (!painelProgramas) return;
+
+        const lista = painelProgramas.querySelector(
+            ".ziblocksProgramsList"
+        );
+
+        const botaoAbrir = painelProgramas.querySelector(
+            ".ziblocksProgramsOpen"
+        );
+
+        lista.innerHTML = "";
+
+        programaSelecionado = null;
+
+        botaoAbrir.disabled = true;
+
+        if (programasDisponiveis.length === 0) {
+
+            lista.innerHTML = `
+                <div class="ziblocksProgramsEmpty">
+                    Você ainda não salvou nenhum programa.<br><br>
+                    Toque em Salvar Código para guardar seu primeiro projeto!
+                </div>
+            `;
+
+            return;
+        }
+
+        programasDisponiveis.forEach(function(programa) {
+
+            const item = document.createElement("div");
+
+            item.className = "ziblocksProgramItem";
+
+            const nome = document.createElement("div");
+
+            nome.className = "ziblocksProgramName";
+
+            nome.textContent = programa.nome;
+
+
+            // =================================================
+            // BOTÃO COMPARTILHAR
+            // =================================================
+
+            const compartilhar = document.createElement("button");
+
+            compartilhar.className = "ziblocksProgramShare";
+
+            compartilhar.innerHTML = `
+                <svg viewBox="0 0 24 24" width="22" height="22"
+                     fill="currentColor" aria-hidden="true">
+                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7
+                    a3.27 3.27 0 0 0 0-1.39l7.05-4.11a3 3 0 1 0-.94-1.74
+                    L7.97 9.57a3 3 0 1 0 0 4.86l7.12 4.16a3 3 0 1 0
+                    2.91-2.51Z"/>
+                </svg>
+            `;
+
+            compartilhar.title = "Compartilhar programa";
+
+            compartilhar.onclick = function(event) {
+
+                event.stopPropagation();
+
+                AndroidBridge.compartilharPrograma(
+                    programa.arquivo
+                );
+
+            };
+
+
+            // =================================================
+            // BOTÃO EXCLUIR
+            // =================================================
+
+            const excluir = document.createElement("button");
+
+            excluir.className =
+                "ziblocksProgramShare ziblocksProgramDelete";
+
+            excluir.innerHTML = `
+                <svg viewBox="0 0 24 24" width="22" height="22"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 6h18"/>
+                    <path d="M8 6V4h8v2"/>
+                    <path d="M19 6l-1 14H6L5 6"/>
+                    <path d="M10 11v5"/>
+                    <path d="M14 11v5"/>
+                </svg>
+            `;
+
+            excluir.title = "Excluir programa";
+
+            excluir.onclick = function(event) {
+
+                event.stopPropagation();
+
+                if (
+                    !window.AndroidBridge ||
+                    typeof AndroidBridge.excluirPrograma !== "function"
+                ) {
+
+                    mostrarAviso(
+                        "Não foi possível acessar a exclusão de programas."
+                    );
+
+                    return;
+                }
+
+                AndroidBridge.excluirPrograma(
+                    programa.arquivo
+                );
+
+            };
+
+
+            // =================================================
+            // MONTAGEM DO ITEM
+            // =================================================
+
+            item.appendChild(nome);
+            item.appendChild(compartilhar);
+            item.appendChild(excluir);
+
+            item.onclick = function() {
+
+                lista.querySelectorAll(
+                    ".ziblocksProgramItem"
+                ).forEach(function(elemento) {
+
+                    elemento.classList.remove("selected");
+
+                });
+
+                item.classList.add("selected");
+
+                programaSelecionado = programa;
+
+                botaoAbrir.disabled = false;
+
+            };
+
+            lista.appendChild(item);
+
+        });
+
+    }
+
+
+    // =====================================================
+    // ABRIR PROGRAMA SELECIONADO
+    // =====================================================
+
+    function abrirProgramaSelecionado() {
+
+        if (!programaSelecionado) return;
+
+        AndroidBridge.abrirPrograma(
+            programaSelecionado.arquivo
+        );
+
+    }
+
+
+    // =====================================================
+    // RECEBER PROGRAMA DO ANDROID
+    // =====================================================
+
+    function ziblocksProgramaAberto(nome, conteudo) {
+
+        try {
+
+            // Converte o texto XML em um documento DOM.
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(conteudo, "text/xml");
+
+            // Verifica se o XML possui erros de estrutura.
+            if (dom.getElementsByTagName("parsererror").length > 0) {
+                throw new Error("Arquivo XML inválido.");
+            }
+
+            // Verifica se o arquivo contém o bloco principal.
+            const possuiPrincipal = Array.from(dom.documentElement.children).some(
+                function(elemento) {
+
+                    return elemento.tagName.toLowerCase() === "block" &&
+                        elemento.getAttribute("type") === "ziblocks_sempre";
+
+                }
+            );
+
+            if (!possuiPrincipal) {
+
+                mostrarAviso(
+                    "Este arquivo não contém um programa Ziblocks válido."
+                );
+
+                return;
+            }
+
+            // Limpa o programa atual.
+            workspace.clear();
+
+            // Reconstrói os blocos e suas conexões.
+            Blockly.Xml.domToWorkspace(dom.documentElement, workspace);
+
+            // Atualiza a referência do bloco principal.
+            blocoSempre = workspace.getAllBlocks(false).find(
+                function(bloco) {
+                    return bloco.type === "ziblocks_sempre";
+                }
+            );
+
+            workspace.render();
+
+            fecharPainelProgramas();
+
+            mostrarAviso(
+                "Programa " + nome + " aberto com sucesso!"
+            );
+
+        } catch (erro) {
+
+            console.error("Erro ao abrir programa:", erro);
+
+            mostrarAviso(
+                "Não foi possível abrir esse programa."
+            );
+
+        }
+
+    }
+
 
 
     // =====================================================

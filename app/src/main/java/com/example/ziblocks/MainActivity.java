@@ -3,15 +3,23 @@ package com.example.ziblocks;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ContentValues;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,13 +43,24 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.webkit.WebViewAssetLoader;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     private volatile boolean transmitting = false;
 
     private ActivityResultLauncher<String> cameraPermissionLauncher;
+    private ActivityResultLauncher<String> storagePermissionLauncher;
 
     private String codigoPendente;
     private String acaoPendente;
@@ -84,6 +104,42 @@ public class MainActivity extends AppCompatActivity {
     private static final long TEMPO_INICIAL_NS = 400_000_000L;
     private static final long TEMPO_GRUPO_NS = 50_000_000L;
 
+    // =====================================================
+    // ARQUIVOS ZIBLOCKS
+    // =====================================================
+
+    private static final String PASTA_PROGRAMAS = "Ziblocks";
+    private static final String EXTENSAO = ".ziblocks";
+    private static final String MIME_TYPE = "application/x-ziblocks";
+
+    private String nomePendente;
+    private String conteudoPendente;
+
+    private enum AcaoArmazenamento {
+        NENHUMA,
+        SALVAR,
+        LISTAR,
+        ABRIR,
+        COMPARTILHAR,
+        EXCLUIR
+    }
+
+    private AcaoArmazenamento acaoArmazenamento =
+            AcaoArmazenamento.NENHUMA;
+
+    private String arquivoPendente;
+
+    private static class Programa {
+        String nome;
+        String arquivo;
+        Uri uri;
+
+        Programa(String nome, String arquivo, Uri uri) {
+            this.nome = nome;
+            this.arquivo = arquivo;
+            this.uri = uri;
+        }
+    }
 
     // =====================================================
     // COMUNICAÇÃO JAVASCRIPT / ANDROID
@@ -111,8 +167,41 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-    }
+        @JavascriptInterface
+        public void salvarPrograma(String nome, String conteudo) {
 
+            runOnUiThread(() -> solicitarSalvarPrograma(nome, conteudo));
+
+        }
+
+        @JavascriptInterface
+        public void listarProgramas() {
+
+            runOnUiThread(() -> solicitarListagemProgramas());
+
+        }
+
+        @JavascriptInterface
+        public void abrirPrograma(String arquivo) {
+
+            runOnUiThread(() -> solicitarAbrirPrograma(arquivo));
+
+        }
+
+        @JavascriptInterface
+        public void compartilharPrograma(String arquivo) {
+
+            runOnUiThread(() -> solicitarCompartilhamento(arquivo));
+
+        }
+
+        @JavascriptInterface
+        public void excluirPrograma(String arquivo) {
+
+            runOnUiThread(() -> solicitarExclusaoPrograma(arquivo));
+
+        }
+    }
 
     // =====================================================
     // INICIALIZAÇÃO
@@ -134,11 +223,8 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnToolbox = findViewById(R.id.btnToolbox);
         ImageButton btnMenu = findViewById(R.id.btnMenu);
 
-        // Gerenciador da câmera.
-
         cameraManager = (CameraManager)
                 getSystemService(Context.CAMERA_SERVICE);
-
 
         // =================================================
         // PERMISSÃO DA CÂMERA
@@ -192,6 +278,37 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        // =================================================
+        // PERMISSÃO DE ARMAZENAMENTO (ANDROID 9 OU ANTERIOR)
+        // =================================================
+
+        storagePermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+
+                granted -> {
+
+                    if (granted) {
+
+                        executarAcaoArmazenamento();
+
+                    } else {
+
+                        acaoArmazenamento = AcaoArmazenamento.NENHUMA;
+
+                        Toast.makeText(
+                                this,
+                                "Permissão necessária para acessar a pasta Documentos.",
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        if (nomePendente != null) {
+                            notificarSalvamento(false, "Permissão de armazenamento negada.");
+                        }
+
+                    }
+
+                }
+        );
 
         // =================================================
         // BOTÃO VOLTAR
@@ -222,7 +339,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-
         // =================================================
         // WEBVIEW ASSET LOADER
         // =================================================
@@ -235,7 +351,6 @@ public class MainActivity extends AppCompatActivity {
                         )
                         .build();
 
-
         // =================================================
         // CONFIGURAÇÕES DO WEBVIEW
         // =================================================
@@ -243,17 +358,12 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = webView.getSettings();
 
         webSettings.setJavaScriptEnabled(true);
-
         webSettings.setMediaPlaybackRequiresUserGesture(false);
-
-
-        // Disponibiliza AndroidBridge ao JavaScript.
 
         webView.addJavascriptInterface(
                 new AndroidBridge(),
                 "AndroidBridge"
         );
-
 
         // =================================================
         // CLIENTE DO WEBVIEW
@@ -271,7 +381,6 @@ public class MainActivity extends AppCompatActivity {
                 );
 
             }
-
 
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -291,7 +400,6 @@ public class MainActivity extends AppCompatActivity {
                     if (!splashRemovida) {
 
                         splashRemovida = true;
-
                         splashOverlay.setVisibility(View.GONE);
 
                     }
@@ -299,7 +407,6 @@ public class MainActivity extends AppCompatActivity {
                 }, tempoRestante);
 
             }
-
 
             @Override
             public void onReceivedError(
@@ -320,7 +427,6 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-
         // =================================================
         // BOTÃO ANDROID DA TOOLBOX
         // =================================================
@@ -334,13 +440,11 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-
         // =================================================
         // BOTÃO ANDROID DO MENU
         // =================================================
 
         btnMenu.setOnClickListener(v -> abrirMenu(v));
-
 
         // =================================================
         // CARREGAMENTO DO BLOCKLY
@@ -352,23 +456,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     // =====================================================
     // MENU DE OPÇÕES
     // =====================================================
 
     private void abrirMenu(View ancora) {
 
-        // Monta o conteúdo visual do menu.
         View menuView = LayoutInflater.from(this)
                 .inflate(R.layout.menu_popup, null);
 
-        // Largura da janela: 190dp.
         int larguraMenu = (int) (
                 160 * getResources().getDisplayMetrics().density
         );
 
-        // Cria a janela flutuante.
         PopupWindow popup = new PopupWindow(
                 menuView,
                 larguraMenu,
@@ -383,21 +483,34 @@ public class MainActivity extends AppCompatActivity {
         popup.setOutsideTouchable(true);
         popup.setElevation(8f);
 
-        // Identifica as opções.
         TextView abrir = menuView.findViewById(R.id.menuAbrir);
         TextView salvar = menuView.findViewById(R.id.menuSalvar);
         TextView sobre = menuView.findViewById(R.id.menuSobre);
 
-        // Por enquanto, apenas fecha o menu.
-        // As funcionalidades serão implementadas posteriormente.
+        abrir.setOnClickListener(v -> {
 
-        abrir.setOnClickListener(v -> popup.dismiss());
+            popup.dismiss();
 
-        salvar.setOnClickListener(v -> popup.dismiss());
+            webView.evaluateJavascript(
+                    "abrirListaProgramas()",
+                    null
+            );
+
+        });
+
+        salvar.setOnClickListener(v -> {
+
+            popup.dismiss();
+
+            webView.evaluateJavascript(
+                    "abrirJanelaSalvar()",
+                    null
+            );
+
+        });
 
         sobre.setOnClickListener(v -> popup.dismiss());
 
-        // Exibe o menu alinhado à direita do botão.
         popup.showAsDropDown(
                 ancora,
                 0,
@@ -407,9 +520,1168 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // =====================================================
+    // PERMISSÃO DE ARMAZENAMENTO
+    // =====================================================
+
+    private boolean verificarPermissaoArmazenamento() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return true;
+        }
+
+        return ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED;
+
+    }
+
+    private void solicitarPermissaoArmazenamento(
+            AcaoArmazenamento acao) {
+
+        acaoArmazenamento = acao;
+
+        if (verificarPermissaoArmazenamento()) {
+
+            executarAcaoArmazenamento();
+
+        } else {
+
+            storagePermissionLauncher.launch(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            );
+
+        }
+
+    }
+
+    private void executarAcaoArmazenamento() {
+
+        AcaoArmazenamento acao = acaoArmazenamento;
+
+        acaoArmazenamento = AcaoArmazenamento.NENHUMA;
+
+        switch (acao) {
+
+            case SALVAR:
+                salvarProgramaNoDispositivo(nomePendente, conteudoPendente);
+                break;
+
+            case LISTAR:
+                listarProgramasDoDispositivo();
+                break;
+
+            case ABRIR:
+                abrirProgramaDoDispositivo(arquivoPendente);
+                break;
+
+            case COMPARTILHAR:
+                compartilharProgramaDoDispositivo(arquivoPendente);
+                break;
+
+            case EXCLUIR:
+                confirmarExclusaoPrograma(arquivoPendente);
+                break;
+
+            default:
+                break;
+
+        }
+
+    }
 
     // =====================================================
-    // SOLICITAR PERMISSÃO OU INICIAR
+    // SALVAR PROGRAMA
+    // =====================================================
+
+    private void solicitarSalvarPrograma(
+            String nome,
+            String conteudo) {
+
+        if (nome == null || conteudo == null || conteudo.trim().isEmpty()) {
+
+            notificarSalvamento(false, "Não foi possível salvar o programa.");
+            return;
+
+        }
+
+        String nomeLimpo = nome.trim();
+
+        nomeLimpo = nomeLimpo.replaceAll(
+                "[\\\\/:*?\"<>|]",
+                "_"
+        );
+
+        if (nomeLimpo.isEmpty()) {
+
+            notificarSalvamento(false, "Digite um nome válido.");
+            return;
+
+        }
+
+        if (nomeLimpo.toLowerCase().endsWith(EXTENSAO)) {
+
+            nomeLimpo = nomeLimpo.substring(
+                    0,
+                    nomeLimpo.length() - EXTENSAO.length()
+            );
+
+        }
+
+        nomePendente = nomeLimpo;
+        conteudoPendente = conteudo;
+
+        solicitarPermissaoArmazenamento(
+                AcaoArmazenamento.SALVAR
+        );
+
+    }
+
+    private void salvarProgramaNoDispositivo(
+            String nome,
+            String conteudo) {
+
+        if (nome == null || conteudo == null) {
+            notificarSalvamento(false, "Dados inválidos.");
+            return;
+        }
+
+        String arquivo = nome + EXTENSAO;
+
+        try {
+
+            Programa existente = localizarPrograma(arquivo);
+
+            if (existente != null) {
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Substituir programa?")
+                        .setMessage(
+                                "Já existe um programa chamado \"" +
+                                        nome +
+                                        "\". Deseja substituí-lo?"
+                        )
+                        .setNegativeButton("Cancelar", (dialog, which) -> {
+
+                            notificarSalvamento(
+                                    false,
+                                    "Salvamento cancelado."
+                            );
+
+                        })
+                        .setPositiveButton("Substituir", (dialog, which) -> {
+
+                            gravarPrograma(existente, conteudo);
+
+                        })
+                        .show();
+
+            } else {
+
+                gravarPrograma(null, conteudo);
+
+            }
+
+        } catch (Exception e) {
+
+            Log.e("ZIBLOCKS_FILES", "Erro ao verificar programa.", e);
+
+            notificarSalvamento(
+                    false,
+                    "Não foi possível acessar os programas."
+            );
+
+        }
+
+    }
+
+    private void gravarPrograma(
+            Programa existente,
+            String conteudo) {
+
+        Uri uri = null;
+        boolean novoArquivo = existente == null;
+
+        try {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                if (existente != null) {
+
+                    uri = existente.uri;
+
+                    ContentValues valores = new ContentValues();
+                    valores.put(MediaStore.MediaColumns.IS_PENDING, 1);
+
+                    // Corrige também o nome de arquivos antigos.
+                    valores.put(
+                            MediaStore.MediaColumns.DISPLAY_NAME,
+                            nomePendente + EXTENSAO
+                    );
+
+                    valores.put(
+                            MediaStore.MediaColumns.MIME_TYPE,
+                            MIME_TYPE
+                    );
+
+                    getContentResolver().update(
+                            uri,
+                            valores,
+                            null,
+                            null
+                    );
+
+                } else {
+
+                    ContentValues valores = new ContentValues();
+
+                    valores.put(
+                            MediaStore.MediaColumns.DISPLAY_NAME,
+                            nomePendente + EXTENSAO
+                    );
+
+                    valores.put(
+                            MediaStore.MediaColumns.MIME_TYPE,
+                            MIME_TYPE
+                    );
+
+                    valores.put(
+                            MediaStore.MediaColumns.RELATIVE_PATH,
+                            Environment.DIRECTORY_DOCUMENTS + "/" +
+                                    PASTA_PROGRAMAS + "/"
+                    );
+
+                    valores.put(
+                            MediaStore.MediaColumns.IS_PENDING,
+                            1
+                    );
+
+                    uri = getContentResolver().insert(
+                            MediaStore.Files.getContentUri("external"),
+                            valores
+                    );
+
+                    if (uri == null) {
+                        throw new IOException("Não foi possível criar o arquivo.");
+                    }
+
+                }
+
+                try (OutputStream output = getContentResolver().openOutputStream(uri, "wt")) {
+
+                    if (output == null) {
+                        throw new IOException("Não foi possível gravar o arquivo.");
+                    }
+
+                    output.write(conteudo.getBytes(StandardCharsets.UTF_8));
+                    output.flush();
+
+                }
+
+                ContentValues valoresFinal = new ContentValues();
+                valoresFinal.put(MediaStore.MediaColumns.IS_PENDING, 0);
+
+                getContentResolver().update(
+                        uri,
+                        valoresFinal,
+                        null,
+                        null
+                );
+
+            } else {
+
+                File pasta = obterPastaLegada();
+
+                if (!pasta.exists() && !pasta.mkdirs()) {
+                    throw new IOException("Não foi possível criar a pasta.");
+                }
+
+                File destino = new File(pasta, nomePendente + EXTENSAO);
+
+                try (OutputStream output = new java.io.FileOutputStream(destino, false)) {
+
+                    output.write(conteudo.getBytes(StandardCharsets.UTF_8));
+                    output.flush();
+
+                }
+
+            }
+
+            notificarSalvamento(
+                    true,
+                    "Programa salvo com sucesso!"
+            );
+
+        } catch (Exception e) {
+
+            Log.e("ZIBLOCKS_FILES", "Erro ao salvar programa.", e);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && uri != null) {
+
+                if (novoArquivo) {
+
+                    getContentResolver().delete(uri, null, null);
+
+                } else {
+
+                    ContentValues valores = new ContentValues();
+                    valores.put(MediaStore.MediaColumns.IS_PENDING, 0);
+
+                    getContentResolver().update(
+                            uri,
+                            valores,
+                            null,
+                            null
+                    );
+
+                }
+
+            }
+
+            notificarSalvamento(
+                    false,
+                    "Não foi possível salvar o programa."
+            );
+
+        }
+
+    }
+
+    // =====================================================
+    // LISTAR PROGRAMAS
+    // =====================================================
+
+    private void solicitarListagemProgramas() {
+
+        solicitarPermissaoArmazenamento(
+                AcaoArmazenamento.LISTAR
+        );
+
+    }
+
+    private void listarProgramasDoDispositivo() {
+
+        ArrayList<Programa> programas = new ArrayList<>();
+
+        try {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                Uri colecao = MediaStore.Files.getContentUri("external");
+
+                String caminhoPasta =
+                        Environment.DIRECTORY_DOCUMENTS + "/" +
+                                PASTA_PROGRAMAS + "/";
+
+                String selecao =
+                        MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ? AND " +
+                                MediaStore.MediaColumns.IS_PENDING + " = 0";
+
+                String[] argumentos = {
+                        caminhoPasta + "%"
+                };
+
+                String[] colunas = {
+                        MediaStore.MediaColumns.DISPLAY_NAME,
+                        MediaStore.MediaColumns._ID,
+                        MediaStore.MediaColumns.RELATIVE_PATH
+                };
+
+                try (Cursor cursor = getContentResolver().query(
+                        colecao,
+                        colunas,
+                        selecao,
+                        argumentos,
+                        MediaStore.MediaColumns.DISPLAY_NAME + " ASC"
+                )) {
+
+                    if (cursor != null) {
+
+                        int indiceNome = cursor.getColumnIndexOrThrow(
+                                MediaStore.MediaColumns.DISPLAY_NAME
+                        );
+
+                        int indiceId = cursor.getColumnIndexOrThrow(
+                                MediaStore.MediaColumns._ID
+                        );
+
+                        int indiceCaminho = cursor.getColumnIndexOrThrow(
+                                MediaStore.MediaColumns.RELATIVE_PATH
+                        );
+
+                        while (cursor.moveToNext()) {
+
+                            String arquivo = cursor.getString(indiceNome);
+                            String caminho = cursor.getString(indiceCaminho);
+
+                            Log.d(
+                                    "ZIBLOCKS_FILES",
+                                    "Encontrado: " + arquivo +
+                                            " | Pasta: " + caminho
+                            );
+
+                            if (!ehArquivoZiblocks(arquivo)) {
+                                continue;
+                            }
+
+                            long id = cursor.getLong(indiceId);
+
+                            Uri uri = Uri.withAppendedPath(
+                                    colecao,
+                                    String.valueOf(id)
+                            );
+
+                            String arquivoExibicao =
+                                    normalizarArquivoLegado(arquivo);
+
+                            String nomeExibicao =
+                                    removerExtensao(arquivoExibicao);
+
+                            // Tenta corrigir o nome físico dos arquivos antigos.
+                            if (!arquivo.equals(arquivoExibicao)) {
+
+                                if (renomearArquivo(uri, arquivoExibicao)) {
+
+                                    Log.d(
+                                            "ZIBLOCKS_FILES",
+                                            "Arquivo antigo renomeado: " +
+                                                    arquivo + " -> " +
+                                                    arquivoExibicao
+                                    );
+
+                                    arquivo = arquivoExibicao;
+
+                                } else {
+
+                                    Log.w(
+                                            "ZIBLOCKS_FILES",
+                                            "Não foi possível renomear: " + arquivo
+                                    );
+
+                                }
+
+                            }
+
+                            programas.add(new Programa(
+                                    nomeExibicao,
+                                    arquivo,
+                                    uri
+                            ));
+
+                        }
+
+                        Log.d(
+                                "ZIBLOCKS_FILES",
+                                "Total de programas encontrados: " + programas.size()
+                        );
+
+                    } else {
+
+                        Log.e(
+                                "ZIBLOCKS_FILES",
+                                "A consulta ao MediaStore retornou cursor nulo."
+                        );
+
+                    }
+
+                }
+
+            } else {
+
+                File pasta = obterPastaLegada();
+
+                File[] arquivos = pasta.listFiles();
+
+                if (arquivos != null) {
+
+                    for (File arquivo : arquivos) {
+
+                        if (arquivo.isFile() &&
+                                ehArquivoZiblocks(arquivo.getName())) {
+
+                            String nomeNormalizado =
+                                    normalizarArquivoLegado(arquivo.getName());
+
+                            programas.add(new Programa(
+                                    removerExtensao(nomeNormalizado),
+                                    arquivo.getName(),
+                                    Uri.fromFile(arquivo)
+                            ));
+
+                        }
+
+                    }
+
+                }
+
+                programas.sort(
+                        (a, b) -> a.nome.compareToIgnoreCase(b.nome)
+                );
+
+            }
+
+            JSONArray resultado = new JSONArray();
+
+            for (Programa programa : programas) {
+
+                JSONObject objeto = new JSONObject();
+
+                objeto.put("nome", programa.nome);
+                objeto.put("arquivo", programa.arquivo);
+
+                resultado.put(objeto);
+
+            }
+
+            webView.evaluateJavascript(
+                    "ziblocksListaProgramas(" + resultado.toString() + ")",
+                    null
+            );
+
+        } catch (Exception e) {
+
+            Log.e("ZIBLOCKS_FILES", "Erro ao listar programas.", e);
+
+            webView.evaluateJavascript(
+                    "ziblocksListaProgramas([])",
+                    null
+            );
+
+            Toast.makeText(
+                    this,
+                    "Não foi possível listar os programas.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        }
+
+    }
+
+    // =====================================================
+    // RECONHECER E NORMALIZAR ARQUIVOS ANTIGOS
+    // =====================================================
+
+    private boolean ehArquivoZiblocks(String arquivo) {
+
+        if (arquivo == null) {
+            return false;
+        }
+
+        String nome = arquivo.toLowerCase();
+
+        return nome.endsWith(EXTENSAO) ||
+                nome.matches(".*\\.ziblocks(?: \\(\\d+\\))?\\.xml$");
+
+    }
+
+    private String normalizarArquivoLegado(String arquivo) {
+
+        if (arquivo == null) {
+            return null;
+        }
+
+        Pattern padrao = Pattern.compile(
+                "(?i)\\.ziblocks(?: \\((\\d+)\\))?\\.xml$"
+        );
+
+        Matcher matcher = padrao.matcher(arquivo);
+
+        if (!matcher.find()) {
+            return arquivo;
+        }
+
+        String base = arquivo.substring(0, matcher.start());
+        String numero = matcher.group(1);
+
+        if (numero != null) {
+            return base + " (" + numero + ")" + EXTENSAO;
+        }
+
+        return base + EXTENSAO;
+
+    }
+
+    private boolean renomearArquivo(Uri uri, String novoNome) {
+
+        try {
+
+            ContentValues valores = new ContentValues();
+
+            valores.put(
+                    MediaStore.MediaColumns.DISPLAY_NAME,
+                    novoNome
+            );
+
+            valores.put(
+                    MediaStore.MediaColumns.MIME_TYPE,
+                    MIME_TYPE
+            );
+
+            int atualizados = getContentResolver().update(
+                    uri,
+                    valores,
+                    null,
+                    null
+            );
+
+            return atualizados > 0;
+
+        } catch (Exception e) {
+
+            Log.e(
+                    "ZIBLOCKS_FILES",
+                    "Erro ao renomear arquivo antigo.",
+                    e
+            );
+
+            return false;
+
+        }
+
+    }
+
+    // =====================================================
+    // ABRIR PROGRAMA
+    // =====================================================
+
+    private void solicitarAbrirPrograma(String arquivo) {
+
+        if (arquivo == null || arquivo.trim().isEmpty()) {
+            return;
+        }
+
+        arquivoPendente = arquivo;
+
+        solicitarPermissaoArmazenamento(
+                AcaoArmazenamento.ABRIR
+        );
+
+    }
+
+    private void abrirProgramaDoDispositivo(String arquivo) {
+
+        try {
+
+            Programa programa = localizarPrograma(arquivo);
+
+            if (programa == null) {
+                throw new IOException("Programa não encontrado.");
+            }
+
+            String conteudo;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                try (InputStream input = getContentResolver().openInputStream(programa.uri)) {
+
+                    if (input == null) {
+                        throw new IOException("Não foi possível ler o arquivo.");
+                    }
+
+                    conteudo = lerTexto(input);
+
+                }
+
+            } else {
+
+                File file = new File(obterPastaLegada(), programa.arquivo);
+
+                try (InputStream input = new java.io.FileInputStream(file)) {
+
+                    conteudo = lerTexto(input);
+
+                }
+
+            }
+
+            String nome = removerExtensao(
+                    normalizarArquivoLegado(programa.arquivo)
+            );
+
+            webView.evaluateJavascript(
+                    "ziblocksProgramaAberto(" +
+                            JSONObject.quote(nome) + "," +
+                            JSONObject.quote(conteudo) +
+                            ")",
+                    null
+            );
+
+        } catch (Exception e) {
+
+            Log.e("ZIBLOCKS_FILES", "Erro ao abrir programa.", e);
+
+            Toast.makeText(
+                    this,
+                    "Não foi possível abrir esse programa.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        }
+
+    }
+
+    // =====================================================
+    // COMPARTILHAR PROGRAMA
+    // =====================================================
+
+    private void solicitarCompartilhamento(String arquivo) {
+
+        if (arquivo == null || arquivo.trim().isEmpty()) {
+            return;
+        }
+
+        arquivoPendente = arquivo;
+
+        solicitarPermissaoArmazenamento(
+                AcaoArmazenamento.COMPARTILHAR
+        );
+
+    }
+
+    private void compartilharProgramaDoDispositivo(String arquivo) {
+
+        try {
+
+            Programa programa = localizarPrograma(arquivo);
+
+            if (programa == null) {
+                throw new IOException("Programa não encontrado.");
+            }
+
+            Uri uriCompartilhamento;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                uriCompartilhamento = programa.uri;
+
+            } else {
+
+                uriCompartilhamento = FileProvider.getUriForFile(
+                        this,
+                        getPackageName() + ".fileprovider",
+                        new File(obterPastaLegada(), programa.arquivo)
+                );
+
+            }
+
+            Intent compartilhar = new Intent(Intent.ACTION_SEND);
+
+            compartilhar.setType(MIME_TYPE);
+
+            compartilhar.putExtra(
+                    Intent.EXTRA_STREAM,
+                    uriCompartilhamento
+            );
+
+            compartilhar.addFlags(
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            );
+
+            compartilhar.setClipData(
+                    android.content.ClipData.newUri(
+                            getContentResolver(),
+                            programa.arquivo,
+                            uriCompartilhamento
+                    )
+            );
+
+            startActivity(
+                    Intent.createChooser(
+                            compartilhar,
+                            "Compartilhar programa"
+                    )
+            );
+
+        } catch (Exception e) {
+
+            Log.e("ZIBLOCKS_FILES", "Erro ao compartilhar programa.", e);
+
+            Toast.makeText(
+                    this,
+                    "Não foi possível compartilhar esse programa.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        }
+
+    }
+
+    // =====================================================
+    // EXCLUIR PROGRAMA
+    // =====================================================
+
+    private void solicitarExclusaoPrograma(String arquivo) {
+
+        if (arquivo == null || arquivo.trim().isEmpty()) {
+            return;
+        }
+
+        arquivoPendente = arquivo;
+
+        solicitarPermissaoArmazenamento(
+                AcaoArmazenamento.EXCLUIR
+        );
+
+    }
+
+    private void confirmarExclusaoPrograma(String arquivo) {
+
+        try {
+
+            Programa programa = localizarPrograma(arquivo);
+
+            if (programa == null) {
+
+                Toast.makeText(
+                        this,
+                        "Programa não encontrado.",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                listarProgramasDoDispositivo();
+                return;
+
+            }
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Excluir programa?")
+                    .setMessage(
+                            "Deseja realmente excluir o programa \"" +
+                                    programa.nome +
+                                    "\"? Essa ação não poderá ser desfeita."
+                    )
+                    .setNegativeButton("Cancelar", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .setPositiveButton("Excluir", (dialog, which) -> {
+                        excluirProgramaDoDispositivo(programa);
+                    })
+                    .show();
+
+        } catch (Exception e) {
+
+            Log.e(
+                    "ZIBLOCKS_FILES",
+                    "Erro ao confirmar exclusão.",
+                    e
+            );
+
+            Toast.makeText(
+                    this,
+                    "Não foi possível excluir o programa.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        }
+
+    }
+
+    private void excluirProgramaDoDispositivo(Programa programa) {
+
+        try {
+
+            boolean excluido;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                int quantidade = getContentResolver().delete(
+                        programa.uri,
+                        null,
+                        null
+                );
+
+                excluido = quantidade > 0;
+
+            } else {
+
+                File arquivo = new File(
+                        obterPastaLegada(),
+                        programa.arquivo
+                );
+
+                excluido = arquivo.exists() && arquivo.delete();
+
+            }
+
+            if (excluido) {
+
+                Toast.makeText(
+                        this,
+                        "Programa excluído com sucesso!",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                // Atualiza a lista após excluir o arquivo.
+                listarProgramasDoDispositivo();
+
+            } else {
+
+                Toast.makeText(
+                        this,
+                        "Não foi possível excluir o programa.",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+            }
+
+        } catch (Exception e) {
+
+            Log.e(
+                    "ZIBLOCKS_FILES",
+                    "Erro ao excluir programa.",
+                    e
+            );
+
+            Toast.makeText(
+                    this,
+                    "Não foi possível excluir o programa.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        }
+
+    }
+
+    // =====================================================
+    // LOCALIZAR PROGRAMA
+    // =====================================================
+
+    private Programa localizarPrograma(String arquivo) {
+
+        if (arquivo == null) {
+            return null;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+            Uri colecao = MediaStore.Files.getContentUri("external");
+
+            String caminhoPasta =
+                    Environment.DIRECTORY_DOCUMENTS + "/" +
+                            PASTA_PROGRAMAS + "/";
+
+            String selecao =
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=? AND " +
+                            MediaStore.MediaColumns.DISPLAY_NAME + "=?";
+
+            String[] colunas = {
+                    MediaStore.MediaColumns._ID,
+                    MediaStore.MediaColumns.DISPLAY_NAME
+            };
+
+            // Primeiro tenta localizar pelo nome exato.
+            try (Cursor cursor = getContentResolver().query(
+                    colecao,
+                    colunas,
+                    selecao,
+                    new String[]{caminhoPasta, arquivo},
+                    null
+            )) {
+
+                if (cursor != null && cursor.moveToFirst()) {
+
+                    long id = cursor.getLong(
+                            cursor.getColumnIndexOrThrow(
+                                    MediaStore.MediaColumns._ID
+                            )
+                    );
+
+                    String nomeReal = cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    MediaStore.MediaColumns.DISPLAY_NAME
+                            )
+                    );
+
+                    Uri uri = Uri.withAppendedPath(
+                            colecao,
+                            String.valueOf(id)
+                    );
+
+                    return new Programa(
+                            removerExtensao(
+                                    normalizarArquivoLegado(nomeReal)
+                            ),
+                            nomeReal,
+                            uri
+                    );
+
+                }
+
+            }
+
+            // Se não encontrou, procura também pelos nomes antigos.
+            try (Cursor cursor = getContentResolver().query(
+                    colecao,
+                    colunas,
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                    new String[]{caminhoPasta},
+                    null
+            )) {
+
+                if (cursor != null) {
+
+                    int indiceId = cursor.getColumnIndexOrThrow(
+                            MediaStore.MediaColumns._ID
+                    );
+
+                    int indiceNome = cursor.getColumnIndexOrThrow(
+                            MediaStore.MediaColumns.DISPLAY_NAME
+                    );
+
+                    String arquivoProcurado =
+                            normalizarArquivoLegado(arquivo);
+
+                    while (cursor.moveToNext()) {
+
+                        String nomeReal = cursor.getString(indiceNome);
+
+                        if (nomeReal == null) {
+                            continue;
+                        }
+
+                        String nomeNormalizado =
+                                normalizarArquivoLegado(nomeReal);
+
+                        if (nomeNormalizado.equalsIgnoreCase(arquivoProcurado)) {
+
+                            long id = cursor.getLong(indiceId);
+
+                            Uri uri = Uri.withAppendedPath(
+                                    colecao,
+                                    String.valueOf(id)
+                            );
+
+                            return new Programa(
+                                    removerExtensao(nomeNormalizado),
+                                    nomeReal,
+                                    uri
+                            );
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            return null;
+
+        } else {
+
+            File pasta = obterPastaLegada();
+
+            File file = new File(pasta, arquivo);
+
+            if (!file.exists() || !file.isFile()) {
+
+                String procurado =
+                        normalizarArquivoLegado(arquivo);
+
+                File[] arquivos = pasta.listFiles();
+
+                if (arquivos != null) {
+
+                    for (File candidato : arquivos) {
+
+                        if (candidato.isFile() &&
+                                normalizarArquivoLegado(candidato.getName())
+                                        .equalsIgnoreCase(procurado)) {
+
+                            file = candidato;
+                            break;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if (!file.exists() || !file.isFile()) {
+                return null;
+            }
+
+            return new Programa(
+                    removerExtensao(
+                            normalizarArquivoLegado(file.getName())
+                    ),
+                    file.getName(),
+                    Uri.fromFile(file)
+            );
+
+        }
+
+    }
+
+    // =====================================================
+    // UTILITÁRIOS DE ARQUIVOS
+    // =====================================================
+
+    private File obterPastaLegada() {
+
+        File documentos = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS
+        );
+
+        return new File(documentos, PASTA_PROGRAMAS);
+
+    }
+
+    private String removerExtensao(String arquivo) {
+
+        if (arquivo != null &&
+                arquivo.toLowerCase().endsWith(EXTENSAO)) {
+
+            return arquivo.substring(
+                    0,
+                    arquivo.length() - EXTENSAO.length()
+            );
+
+        }
+
+        return arquivo;
+
+    }
+
+    private String lerTexto(InputStream input) throws IOException {
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        byte[] dados = new byte[4096];
+
+        int quantidade;
+
+        while ((quantidade = input.read(dados)) != -1) {
+            buffer.write(dados, 0, quantidade);
+        }
+
+        return buffer.toString("UTF-8");
+
+    }
+
+    private void notificarSalvamento(
+            boolean sucesso,
+            String mensagem) {
+
+        if (webView == null) {
+            return;
+        }
+
+        webView.evaluateJavascript(
+                "ziblocksSalvamentoResultado(" +
+                        sucesso + "," +
+                        JSONObject.quote(mensagem) +
+                        ")",
+                null
+        );
+
+    }
+
+    // =====================================================
+    // SOLICITAR PERMISSÃO OU INICIAR TRANSMISSÃO
     // =====================================================
 
     private void solicitarOuIniciarTransmissao(
@@ -431,7 +1703,6 @@ public class MainActivity extends AppCompatActivity {
                 !"carregar".equals(acao)) {
 
             notificarErro(acao, "Ação não reconhecida.");
-
             return;
 
         }
@@ -441,7 +1712,6 @@ public class MainActivity extends AppCompatActivity {
                 codigo.trim().isEmpty()) {
 
             notificarErro(acao, "Sequência binária inválida.");
-
             return;
 
         }
@@ -477,7 +1747,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     // =====================================================
     // IDENTIFICAR CÂMERA TRASEIRA COM FLASH
     // =====================================================
@@ -506,7 +1775,6 @@ public class MainActivity extends AppCompatActivity {
                         && orientacao == CameraCharacteristics.LENS_FACING_BACK) {
 
                     cameraId = id;
-
                     return true;
 
                 }
@@ -522,7 +1790,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
 
     }
-
 
     // =====================================================
     // INICIAR TRANSMISSÃO
@@ -547,30 +1814,22 @@ public class MainActivity extends AppCompatActivity {
                 null
         );
 
-
         executor.execute(() -> {
 
             String erro = null;
 
             try {
 
-                // Espera inicial de 400 ms.
-
                 esperarAte(
                         System.nanoTime() + TEMPO_INICIAL_NS
                 );
-
-
-                // Transmissão dos grupos.
 
                 for (int g = 0; g < grupos.length; g++) {
 
                     String grupo = grupos[g];
 
                     long inicioGrupo = System.nanoTime();
-
                     long prazo = inicioGrupo;
-
 
                     for (int i = 0; i < grupo.length(); i++) {
 
@@ -584,18 +1843,12 @@ public class MainActivity extends AppCompatActivity {
                                 ? BIT_1_LOW_NS
                                 : BIT_0_LOW_NS;
 
-
-                        // Início do pulso.
-
                         esperarAte(prazo);
 
                         cameraManager.setTorchMode(
                                 idCamera,
                                 true
                         );
-
-
-                        // Final do HIGH.
 
                         prazo += highNs;
 
@@ -606,17 +1859,11 @@ public class MainActivity extends AppCompatActivity {
                                 false
                         );
 
-
-                        // Final do período de 30 ms.
-
                         prazo += lowNs;
 
                         esperarAte(prazo);
 
                     }
-
-
-                    // Pausa entre grupos.
 
                     if (g < grupos.length - 1) {
 
@@ -633,28 +1880,22 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-
             } catch (CameraAccessException e) {
 
                 erro = "Erro ao controlar o flash da câmera.";
-
                 Log.e("FLASH", "Erro na transmissão.", e);
 
             } catch (InterruptedException e) {
 
                 Thread.currentThread().interrupt();
-
                 erro = "Transmissão interrompida.";
 
             } catch (RuntimeException e) {
 
                 erro = "Falha inesperada durante a transmissão.";
-
                 Log.e("FLASH", "Erro inesperado.", e);
 
             } finally {
-
-                // Garantir flash desligado.
 
                 try {
 
@@ -665,7 +1906,6 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (Exception ignored) {
                 }
-
 
                 final String mensagemErro = erro;
 
@@ -698,7 +1938,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     // =====================================================
     // CONTROLE PRECISO DOS INTERVALOS
     // =====================================================
@@ -709,18 +1948,14 @@ public class MainActivity extends AppCompatActivity {
         while (true) {
 
             if (Thread.currentThread().isInterrupted()) {
-
                 throw new InterruptedException();
-
             }
 
             long restante =
                     prazoNs - System.nanoTime();
 
             if (restante <= 0) {
-
                 return;
-
             }
 
             if (restante > 2_000_000L) {
@@ -743,7 +1978,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     // =====================================================
     // RETORNO PARA JAVASCRIPT
     // =====================================================
@@ -759,7 +1993,6 @@ public class MainActivity extends AppCompatActivity {
         );
 
     }
-
 
     private void notificarJavaScript(
             String funcao,
@@ -780,7 +2013,6 @@ public class MainActivity extends AppCompatActivity {
         );
 
     }
-
 
     // =====================================================
     // ENCERRAMENTO
