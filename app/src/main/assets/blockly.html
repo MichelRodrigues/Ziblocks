@@ -344,11 +344,11 @@
 
         .ziblocksProgramsPanel {
             position: fixed;
-
+            border: 1px solid #D9D9D9;
             top: 0;
             right: 0;
 
-            width: min(85vw, 360px);
+            width: min(60vw, 360px);
             height: 100%;
 
             display: flex;
@@ -1010,7 +1010,7 @@
 
         const titulo = document.createElement("h2");
 
-        titulo.textContent = "Meus programas";
+        titulo.textContent = "Meus códigos";
 
         const fechar = document.createElement("button");
 
@@ -1040,7 +1040,7 @@
 
         botaoAbrir.className = "ziblocksProgramsOpen";
 
-        botaoAbrir.textContent = "Abrir programa";
+        botaoAbrir.textContent = "Abrir código";
 
         botaoAbrir.disabled = true;
 
@@ -1343,7 +1343,7 @@
             fecharPainelProgramas();
 
             mostrarAviso(
-                "Programa " + nome + " aberto com sucesso!"
+                "Código " + nome + " aberto com sucesso!"
             );
 
         } catch (erro) {
@@ -1351,7 +1351,7 @@
             console.error("Erro ao abrir programa:", erro);
 
             mostrarAviso(
-                "Não foi possível abrir esse programa."
+                "Não foi possível abrir esse código."
             );
 
         }
@@ -1943,7 +1943,7 @@
 
         if (!existeSaida) {
             throw new Error(
-                "O programa precisa ter pelo menos uma saída digital!"
+                "O código precisa ter pelo menos uma saída digital!"
             );
         }
 

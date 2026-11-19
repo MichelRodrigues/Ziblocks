@@ -1,4 +1,3 @@
-
 package com.example.ziblocks;
 
 import android.Manifest;
@@ -9,7 +8,9 @@ import android.content.Intent;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.text.LineBreaker;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -33,6 +34,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceResponse;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -462,6 +464,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void abrirMenu(View ancora) {
 
+        // Fecha "Meus programas", caso esteja aberto.
+        // O menu de opções continua sendo exibido normalmente.
+        webView.evaluateJavascript(
+                "fecharPainelProgramas()",
+                null
+        );
+
         View menuView = LayoutInflater.from(this)
                 .inflate(R.layout.menu_popup, null);
 
@@ -509,7 +518,10 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        sobre.setOnClickListener(v -> popup.dismiss());
+        sobre.setOnClickListener(v -> {
+            popup.dismiss();
+            mostrarSobre();
+        });
 
         popup.showAsDropDown(
                 ancora,
@@ -518,6 +530,135 @@ public class MainActivity extends AppCompatActivity {
                 Gravity.END
         );
 
+    }
+
+    // =====================================================
+    // SOBRE O ZIBLOCKS
+    // =====================================================
+
+
+
+    private void mostrarSobre() {
+
+        int padding = dp(24);
+
+        // Cor padrão da identidade visual do Ziblocks.
+        int azulZiblocks = android.graphics.Color.parseColor("#332B98");
+
+        // Fundo amarelo com cantos arredondados.
+        android.graphics.drawable.GradientDrawable fundoDialog =
+                new android.graphics.drawable.GradientDrawable();
+
+        fundoDialog.setColor(
+                android.graphics.Color.parseColor("#F2FB94")
+        );
+
+        fundoDialog.setCornerRadius(dp(20));
+
+        LinearLayout conteudo = new LinearLayout(this);
+        conteudo.setOrientation(LinearLayout.VERTICAL);
+
+        // O fundo fica transparente para respeitar os cantos do diálogo.
+        conteudo.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+
+        conteudo.setGravity(Gravity.CENTER_HORIZONTAL);
+        conteudo.setPadding(padding, dp(12), padding, dp(8));
+
+        // LOGO
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.drawable.logo_ziblocks);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(
+                dp(104),
+                dp(104)
+        );
+        logoParams.bottomMargin = dp(8);
+        conteudo.addView(logo, logoParams);
+
+
+        // DESCRIÇÃO
+        TextView descricao = new TextView(this);
+        descricao.setText(
+                "APRENDIZAGEM • PROGRAMAÇÃO • ROBÓTICA\n\n" +
+                        "O Ziblocks é uma plataforma educacional que permite criar " +
+                        "programas de forma visual, utilizando blocos de programação, " +
+                        "e transferi-los sem fio, por meio dos flashes de luz do celular, " +
+                        "diretamente para uma placa eletrônica que controla projetos de robótica."
+        );
+        descricao.setTextSize(15);
+        descricao.setTextColor(azulZiblocks);
+        descricao.setGravity(Gravity.CENTER);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            descricao.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
+        }
+        descricao.setLineSpacing(dp(3), 1.0f);
+
+        LinearLayout.LayoutParams descricaoParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        descricaoParams.bottomMargin = dp(20);
+        conteudo.addView(descricao, descricaoParams);
+
+        // DESENVOLVEDOR
+        TextView desenvolvedor = new TextView(this);
+        desenvolvedor.setText("Desenvolvimento\nMichel Rodrigues");
+        desenvolvedor.setTextSize(14);
+        desenvolvedor.setTextColor(azulZiblocks);
+        desenvolvedor.setGravity(Gravity.CENTER);
+        desenvolvedor.setLineSpacing(dp(3), 1.0f);
+
+        LinearLayout.LayoutParams desenvolvedorParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        desenvolvedorParams.bottomMargin = dp(16);
+        conteudo.addView(desenvolvedor, desenvolvedorParams);
+
+        // VERSÃO E DIREITOS AUTORAIS
+        TextView versao = new TextView(this);
+        versao.setText(
+                "Versão 1.0.0\n© 2026 — Todos os direitos reservados."
+        );
+        versao.setTextSize(12);
+        versao.setTextColor(azulZiblocks);
+        versao.setGravity(Gravity.CENTER);
+        versao.setLineSpacing(dp(2), 1.0f);
+
+        conteudo.addView(
+                versao,
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+        );
+
+        // JANELA SOBRE
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(conteudo)
+                .setPositiveButton(
+                        "Fechar",
+                        (d, which) -> d.dismiss()
+                )
+                .create();
+
+        dialog.show();
+
+        // Aplica o fundo arredondado à janela.
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(fundoDialog);
+        }
+
+        // Cor do texto do botão Fechar.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(azulZiblocks);
+    }
+
+
+
+    private int dp(int valor) {
+        return (int) (valor * getResources().getDisplayMetrics().density + 0.5f);
     }
 
     // =====================================================
